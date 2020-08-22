@@ -1,0 +1,8 @@
+{
+	"database":"appjz",
+	"username":"appjz",
+	"password":"appjz",
+	"host":"192.168.1.126",
+	"port":3306,
+	"dialect":"mysql"
+}
