@@ -6,7 +6,7 @@
 module.exports = {
 	client: {
 		port: 6379,          // Redis port
-		host: '192.168.1.126',   // Redis host
+		host: '39.100.204.7',   // Redis host
 		password: 'szjcomo',
 		db: 0,
 	},

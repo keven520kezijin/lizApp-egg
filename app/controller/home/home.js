@@ -28,15 +28,16 @@ class HomeController extends Base {
 	async index() {
 		let that = this;
 		try {
-			let result = await that.ctx.service.base.getWebAppAccessToken();
-			console.log(result);
+			let result;
+			// let result = await that.ctx.service.base.getWebAppAccessToken();
+			// console.log(result);
 
 			// result = await that.ctx.app.redis.rpush('my_list',2);
 			// result = await that.ctx.app.redis.rpush('my_list',3);
 			// result = await that.ctx.app.redis.rpush('my_list',4);
 			// result = await that.ctx.app.redis.rpush('my_list',5);
 			
-			//await that.ctx.app.redis.del('my_list');
+			// console.log(await that.ctx.app.redis.lpop('my_list'));
 			return that.appJson(that.app.szjcomo.appResult('hi,szjcomo',{},false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
