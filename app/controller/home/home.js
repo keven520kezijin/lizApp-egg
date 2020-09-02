@@ -107,6 +107,30 @@ class HomeController extends Base {
 		}
 	}
 
+	async dywx_send1() {
+		let that = this;
+		try {
+			let content = await that.app.excel.read('dywx.xlsx');
+			let result = [];
+			let data = content[0].data;
+			let length = data.length;
+			for(let i = 0;i < length;i++) {
+				let item = data[i];
+				let options = {
+					data:{
+						sign:'【东源卫生职业技术学校】',
+						mobile:item[1],
+						content:item[0]+'##'+item[3]+'##'+item[2]+'##'+item[4],
+						templateId:196267
+					}
+				};
+				result.push(await that.app.send_single(options));
+			}
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
 
 
 }
