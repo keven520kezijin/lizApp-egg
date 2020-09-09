@@ -1,4 +1,6 @@
 'use strict';
+const path = require('path');
+
 /**
  * [exports 上传的响应主体大小配置]
  * @type {Object}
@@ -53,7 +55,7 @@ module.exports = appInfo => {
          * [dir 日志记录位置]
          * @type {String}
          */
-        dir:'runtime/logs/',
+        dir:path.join(appInfo.baseDir,'runtime','logs'),
         /**
          * [appLogName 应用相关日志，供应用开发者使用的日志]
          * @type {[type]}

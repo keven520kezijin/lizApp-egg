@@ -106,7 +106,7 @@ module.exports = appInfo => {
 		     * @return   {[type]}       [description]
 		     */
 		    all(err, ctx) {
-		    	console.log(err);
+		    	ctx.logger.error(err);
 		        ctx.status = 200;
 		        ctx.body = JSON.stringify(ctx.app.szjcomo.appResult('服务器内部出错,请联系管理员'));
 		    }
