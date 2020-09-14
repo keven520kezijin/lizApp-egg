@@ -315,5 +315,36 @@ class Video extends Base {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
+	/**
+	 * [upload_image 上传视频封面图片]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-14
+	 * @return     {[type]}   [description]
+	 */
+	async upload_image() {
+		let that = this;
+		try {
+			let tmp_save_path = path.join(that.app.baseDir,'app','public','uploads/');
+			let upRes = await that.ctx.service.base.uploadOne(tmp_save_path);
+			let thumb_image_filename = `${that.app.config.qiniu.name_prefix}-voide-image/${upRes.file_sha1}${upRes.ext}`;
+			let is_find = await that.ctx.service.qiniu.exists_file(thumb_image_filename);
+			if(is_find === false) {
+				await that.ctx.service.qiniu.upload_file(thumb_image_filename,{path:`${upRes.save_path}${upRes.save_name}`});
+			}
+			setTimeout(async function(image_path) {
+				await that.app.szjcomo.deleteFile(image_path);
+			},3 *60 * 1000,`${tmp_save_path}${upRes.save_name}`);
+			let result = {
+				file_size:upRes.file_size,
+				file_sha1:upRes.file_sha1,
+				thumb_image:`${that.app.config.qiniu.name_domain}/${thumb_image_filename}`,
+			};
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+
+
 }
 module.exports = Video;

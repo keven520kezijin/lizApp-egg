@@ -37,6 +37,7 @@ module.exports = app => {
 	v1Router.delete('/tags',appCtr.home.tags.delete);
 	/*======================视频操作接口=====================*/
 	v1Router.post('/video/upload',appCtr.home.video.upload_video);//上传视频
+	v1Router.post('/video/upload/image',appCtr.home.video.upload_image);//上传视频封面图片
 	v1Router.post('/video',appCtr.home.video.publish_video);//发布作品
 	v1Router.get('/video',appCtr.home.video.select);//查询作品
 	v1Router.delete('/video',appCtr.home.video.delete);//删除作品

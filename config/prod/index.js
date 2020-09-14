@@ -130,7 +130,7 @@ module.exports = appInfo => {
 			 * [sign 签名]
 			 * @type {String}
 			 */
-			sign:'【河源市卫生学校】'
+			sign:'【东源卫生职业技术学校】'
 		},
 	};
 }
