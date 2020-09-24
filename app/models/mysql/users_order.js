@@ -23,6 +23,9 @@ module.exports = app => {
         view_count: {
             type: DataTypes.INTEGER(10).UNSIGNED,
         },
+        wxpay_id:{
+            type: DataTypes.INTEGER(10).UNSIGNED,
+        },
         update_time: {
             type: DataTypes.TIME,
         },

@@ -81,5 +81,13 @@ module.exports = {
 	redis:{
 	  	enable: true,
 	  	package: 'egg-redis',
+	},
+	/**
+	 * [wxpay 微信支付插件]
+	 * @type {Object}
+	 */
+	wxpay:{
+		enable: true,
+		package: 'egg-szjcomo-wxpay',
 	}
 };

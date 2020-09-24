@@ -20,6 +20,9 @@ module.exports = app => {
         message: {
             type: DataTypes.STRING(255),
         },
+        wxpay_id: {
+            type: DataTypes.INTEGER(10).UNSIGNED,
+        },
         create_time: {
             type: DataTypes.TIME,
         }

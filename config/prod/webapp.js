@@ -11,5 +11,6 @@ module.exports = {
 	 * [secret 微信小程序secret]
 	 * @type {String}
 	 */
-	secret:'d3f063764e73eec56b1913aac1b261be'
+	secret:'d3f063764e73eec56b1913aac1b261be',
+	
 };

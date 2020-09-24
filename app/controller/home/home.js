@@ -133,6 +133,24 @@ class HomeController extends Base {
 		}
 	}
 
+	/**
+	 * [uploadAll 批量文件上传]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-22
+	 * @return     {[type]}   [description]
+	 */
+	async uploadAll() {
+		let that = this;
+		try {
+			let savePath = './app/public/uploads';
+			let result = await that.ctx.service.base.uploadAll(savePath);
+			console.log(result);
+			return that.appJson(that.app.szjcomo.appResult('上传成功',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+
 
 }
 

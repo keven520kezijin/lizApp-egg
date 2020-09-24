@@ -26,7 +26,6 @@ class Users extends Base {
 	get seachValidate() {
 		let that = this;
 		return {
-			user_id:that.ctx.rules.name('user_id').required().number(),
 			page:that.ctx.rules.default(1).number(),
 			limit:that.ctx.rules.default(10).number()
 		};
@@ -40,7 +39,6 @@ class Users extends Base {
 	get searchVideoValidate() {
 		let that = this;
 		return {
-			user_id:that.ctx.rules.name('user_id').required().number(),
 			page:that.ctx.rules.default(1).number(),
 			limit:that.ctx.rules.default(30).number(),
 			tag_name:that.ctx.rules.name('关键字').required()
@@ -69,31 +67,6 @@ class Users extends Base {
 		};
 	}
 	/**
-	 * [usersValidate 查询用户信息]
-	 * @author 	   szjcomo
-	 * @createTime 2020-08-15
-	 * @return     {[type]}   [description]
-	 */
-	get usersValidate() {
-		let that = this;
-		return {
-			user_id:that.ctx.rules.name('user_id').required().number()
-		};
-	}
-	/**
-	 * [activeValidate 更新用户活跃时间]
-	 * @author 	   szjcomo
-	 * @createTime 2020-08-21
-	 * @return     {[type]}   [description]
-	 */
-	get activeValidate() {
-		let that = this;
-		return {
-			user_id:that.ctx.rules.name('user_id').required().number()
-		};
-	}
-
-	/**
 	 * [login 用户登录]
 	 * @author 	   szjcomo
 	 * @createTime 2020-08-12
@@ -104,7 +77,10 @@ class Users extends Base {
 		try {
 			let data = await that.ctx.validate(that.loginValidate,await that.get());
 			let result = await that.login_wechat(data.code);
-			return that.appJson(that.app.szjcomo.appResult('login SUCCESS',result,false));
+			let user = await that.ctx.model.Users.findOne({where:{openid:result.openid},raw:true});
+			if(!user) return that.appJson(that.app.szjcomo.appResult('User not registered',result,false,20001));
+			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user_id.user_id,openid:user.openid}));
+			return that.appJson(that.app.szjcomo.appResult('login SUCCESS',{token:token,user:user},false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
@@ -122,8 +98,13 @@ class Users extends Base {
 		let secret = that.app.config.webapp.secret;
 		let url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
 		let result = await that.ctx.curl(url,{dataType:'json',timeout:5000});
-		if(result.data) return result.data;
-		throw new Error('微信服务器返回错误,请联系管理员处理');
+		if(result.data && result.data.errcode == 0) {
+			return result.data;
+		} else if(result.data && result.data.errcode != 0) {
+			throw new Error(result.data.errmsg);
+		} else {
+			throw new Error('微信服务器返回错误,请联系管理员处理');
+		}
 	}
 
 	/**
@@ -136,11 +117,13 @@ class Users extends Base {
 		let that = this;
 		try {
 			let data = await that.ctx.validate(that.registerValidate,await that.post());
-			let user = await that.ctx.model.Users.findOne({where:{openid:data.openid}});
-			if(user) return that.appJson(that.app.szjcomo.appResult('用户注册成功',user,false));
-			let bean = new Bean(data);
-			let result = await that.ctx.service.base.create(bean,that.ctx.model.Users,'用户注册失败,请稍候重试');
-			return that.appJson(that.app.szjcomo.appResult('用户注册成功',result,false));
+			let user = await that.ctx.model.Users.findOne({where:{openid:data.openid},raw:true});
+			if(!user) {
+				let bean = new Bean(data);
+				user = await that.ctx.service.base.create(bean,that.ctx.model.Users,'用户注册失败,请稍候重试');
+			}
+			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user.user_id,openid:user.openid}));
+			return that.appJson(that.app.szjcomo.appResult('用户注册成功',{token:token,user:user},false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
@@ -154,8 +137,8 @@ class Users extends Base {
 	async select() {
 		let that = this;
 		try {
-			let data = await that.ctx.validate(that.usersValidate,await that.get());
-			let bean = new Bean({},{where:{user_id:data.user_id}});
+			let user_id = await that.ctx.service.base.getUserId();
+			let bean = new Bean({},{where:{user_id:user_id}});
 			let result = await that.ctx.service.base.select(bean,that.ctx.model.Users);
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
@@ -171,8 +154,8 @@ class Users extends Base {
 	async active_user() {
 		let that = this;
 		try {
-			let data = await that.ctx.validate(that.activeValidate,await that.get());
-			let bean = new Bean({active_time:that.app.szjcomo.date('Y-m-d H:i:s')},{where:{user_id:data.user_id}});
+			let user_id = await that.ctx.service.base.getUserId();
+			let bean = new Bean({active_time:that.app.szjcomo.date('Y-m-d H:i:s')},{where:{user_id:user_id}});
 			let result = await that.ctx.service.base.update(bean,that.ctx.model.Users,'用户活跃时间更新失败');
 			return that.appJson(that.app.szjcomo.appResult('user active time update success',result[0],false));
 		} catch(err) {
@@ -189,8 +172,9 @@ class Users extends Base {
 		let that = this;
 		try {
 			let data = await that.ctx.validate(that.seachValidate,await that.get());
+			let user_id = await that.ctx.service.base.getUserId();
 			let bean = new Bean(data,{
-				where:{user_id:data.user_id},
+				where:{user_id:user_id},
 				limit:data.limit,
 				offset:(data.page - 1) * data.limit,
 				order:[['seach_total','desc']],attributes:{exclude:['update_time','user_id']}
@@ -211,6 +195,7 @@ class Users extends Base {
 		let that = this;
 		try {
 			let data = await that.ctx.validate(that.searchVideoValidate,await that.post());
+			data.user_id = await that.ctx.service.base.getUserId();
 			let seq = that.ctx.app.Sequelize;
 			let options = {
 				where:{[seq.Op.or]:[

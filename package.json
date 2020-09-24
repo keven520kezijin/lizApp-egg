@@ -20,6 +20,7 @@
     "egg-szjcomo-ffmpeg": "^1.0.1",
     "egg-szjcomo-utils": "^1.0.0",
     "egg-szjcomo-validate": "^1.0.0",
+    "egg-szjcomo-wxpay": "^1.0.0",
     "mysql2": "^2.1.0",
     "node-qiniu-sdk": "^1.6.6",
     "stream-wormhole": "^1.1.0"
@@ -47,7 +48,7 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json"
+    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json -t szj_wxpay"
   },
   "ci": {
     "version": "10"

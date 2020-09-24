@@ -18,7 +18,6 @@ class VideoPraise extends Base {
 	get praiseValidate() {
 		let that = this;
 		return {
-			user_id:that.ctx.rules.name('user_id').required().number(),
 			video_id:that.ctx.rules.name('video_id').required().number()
 		};
 	}
@@ -34,6 +33,7 @@ class VideoPraise extends Base {
 		let transaction;
 		try {
 			let data = await that.ctx.validate(that.praiseValidate,await that.get());
+			data.user_id = await that.ctx.service.base.getUserId();
 			transaction = await that.ctx.model.transaction();
 			let options = {where:{video_id:data.video_id},fields:['video_praise'],transaction:transaction};
 			let videoBean = new Bean(data,options);

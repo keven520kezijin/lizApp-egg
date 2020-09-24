@@ -126,7 +126,7 @@ class BaseService extends Service {
 		let part;
 		let result = [];
 		let fields = {};
-		let parts = await that.ctx.multipart();
+		let parts = await that.ctx.multipart({autoFields: true});
 		while ((part = await parts()) != null) {
 			if (part.length) {
 				fields[part[0]] = part[1];
@@ -187,6 +187,31 @@ class BaseService extends Service {
 			return access_token;
 		}
 		throw new Error(result.data.errmsg,result.data.errcode);
+	}
+	/**
+	 * [getUserId 获取前台用户的user_id]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-23
+	 * @return     {[type]}   [description]
+	 */
+	async getUserId() {
+		let that = this;
+		let token = that.ctx.request.header.token;
+		let userJson = that.ctx.app.szjcomo.aes_decode(token);
+		let user = that.ctx.app.szjcomo.json_decode(userJson);
+		return user.user_id;
+	}
+	/**
+	 * [getUserOpenId 获取前台用户的openid]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-23
+	 * @param      {[type]}   user_id [description]
+	 * @return     {[type]}           [description]
+	 */
+	async getUserOpenId(user_id) {
+		let that = this;
+		let user = await that.ctx.model.Users.findOne({where:{user_id:user_id},raw:true,attributes:['openid']});
+		return user.openid;
 	}
 
 }

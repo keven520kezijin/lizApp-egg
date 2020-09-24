@@ -32,7 +32,6 @@ class Video extends Base {
 			video_desc:that.ctx.rules.default('').required(),
 			video_price:that.ctx.rules.default(0).required().number(),
 			video_status:that.ctx.rules.default(1).required(),
-			user_id:that.ctx.rules.default(0).required().number(),
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
 		};
 	}
@@ -79,8 +78,9 @@ class Video extends Base {
 		let that = this;
 		let transaction;
 		try {
-			transaction = await that.ctx.model.transaction();
 			let data = await that.ctx.validate(that.publishValidate,await that.post());
+			data.user_id = await that.ctx.service.base.getUserId();
+			transaction = await that.ctx.model.transaction();
 			let videoBean = new Bean(data,{transaction:transaction});
 			videoBean.addCall(that._publish_video_after,'after');
 			let result = await that.ctx.service.base.create(videoBean,that.ctx.model.Video,'作品发布失败,请稍候重试');
@@ -230,8 +230,9 @@ class Video extends Base {
 		let transaction;
 		try {
 			let data = await that.ctx.validate(that.pkValidate,await that.param());
+			let user_id = await that.ctx.service.base.getUserId();
 			transaction = await that.ctx.model.transaction();
-			let videoBean = new Bean(data,{where:{video_id:data.video_id},transaction:transaction});
+			let videoBean = new Bean(data,{where:{video_id:data.video_id,user_id:user_id},transaction:transaction});
 			videoBean.addCall(that._delete_after,'after');
 			videoBean.addCall(that._delete_before,'before');
 			let result = await that.ctx.service.base.delete(videoBean,that.ctx.model.Video,'作品删除失败,请稍候重试');
@@ -253,8 +254,9 @@ class Video extends Base {
 	async _delete_after(ctx,result) {
 		let that = this;
 		let data = that.getData();
+		let options = that.getOptions();
 		if(result) {
-			let videoTagBean = new Bean({},that.getOptions());
+			let videoTagBean = new Bean({},{where:{video_id:options.where.video_id}});
 			await ctx.service.base.delete(videoTagBean,ctx.model.VideoTag,'作品标签删除失败');
 			if(data.video_url) {
 				await ctx.service.qiniu.remove_file(data.video_url.replace(ctx.app.config.qiniu.name_domain + '/',''));

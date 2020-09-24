@@ -17,7 +17,6 @@ class UserComment extends Base {
 	get createValidate() {
 		let that = this;
 		return {
-			user_id:that.ctx.rules.name('用户ID').required().number(),
 			video_id:that.ctx.rules.name('视频ID').required().number(),
 			content:that.ctx.rules.name('评论内容').required().min_length(2).max_length(255),
 			pid:that.ctx.rules.default(0).required().number()
@@ -60,6 +59,7 @@ class UserComment extends Base {
 		let that = this;
 		try {
 			let data = await that.ctx.validate(that.createValidate,await that.post());
+			data.user_id = await that.ctx.service.base.getUserId();
 			let commentBean = new Bean(data);
 			let result = await that.ctx.service.base.create(commentBean,that.ctx.model.UsersComment,'评论添加失败');
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));

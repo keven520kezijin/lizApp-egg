@@ -13,7 +13,7 @@ module.exports = appInfo => {
 		 * [middleware 中间件的使用配置]
 		 * @type {Array}
 		 */
-		middleware:['notfoundHandler'],
+		middleware:['notfoundHandler','xml2js'],
 		/**
 		 * [bodyParser middleware]
 		 * @type {[type]}
@@ -59,6 +59,11 @@ module.exports = appInfo => {
 		 * @type {[type]}
 		 */
 		webapp: 			require('./webapp'),
+		/**
+		 * [wxpay 微信支付配置]
+		 * @type {[type]}
+		 */
+		wxpay: 				require('./wxpay'),
 		/**
 		 * [assets 静态资源目录]
 		 * @type {Object}
