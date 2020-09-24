@@ -151,10 +151,18 @@ class Video extends Base {
 					[seq.col('video_tag.tag_name'),'tag_name']
 				],
 				exclude:['video_hash','admin_id','update_time']
-			}
+			},raw:true
 		};
 		let videoBean = new Bean({video_id:video_id},options);
 		let result = await that.ctx.service.base.select(videoBean,that.ctx.model.Video);
+		if(result.video_price == 0) {
+			result.video_play = true;
+		} else if(user_id == result.user_id) {
+			result.video_play = true;
+		} else {
+			let is_buy = await that.ctx.model.UsersOrder.findOne({where:{video_id:video_id,user_id:user_id,is_pay:1},attributes:['order_id']});
+			result.video_play = is_buy?true:false;
+		}
 		return that.app.szjcomo.appResult('视频详情查询成功',result,false);
 	}
 	/**
