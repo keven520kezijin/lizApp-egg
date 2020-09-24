@@ -82,6 +82,7 @@ class Users extends Base {
 			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user_id.user_id,openid:user.openid}));
 			return that.appJson(that.app.szjcomo.appResult('login SUCCESS',{token:token,user:user},false));
 		} catch(err) {
+			console.log(err);
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
@@ -98,7 +99,7 @@ class Users extends Base {
 		let secret = that.app.config.webapp.secret;
 		let url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
 		let result = await that.ctx.curl(url,{dataType:'json',timeout:5000});
-		if(result.data && result.data.errcode == 0) {
+		if(result.data && result.data.openid) {
 			return result.data;
 		} else if(result.data && result.data.errcode != 0) {
 			throw new Error(result.data.errmsg);

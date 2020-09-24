@@ -41,7 +41,7 @@ class Wxpay extends Base {
 	 * @return     {[type]}   [description]
 	 */
 	get notifyURL() {
-		return 'http://www.hysdyzx.com/v1/wxpay/callback';
+		return 'http://www.liztrip.com/v1/wxpay/callback';
 	}
 	/**
 	 * [findWXpayValidate 查询支付结果]

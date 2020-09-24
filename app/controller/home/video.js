@@ -138,6 +138,7 @@ class Video extends Base {
 	async _select_info(video_id) {
 		let that = this;
 		let seq = that.ctx.app.Sequelize;
+		let user_id = await that.ctx.service.base.getUserId();
 		let options = {
 			where:{video_id:video_id},include:[
 				{model:that.ctx.model.Users,as:'users',attributes:[]},
