@@ -79,7 +79,7 @@ class Users extends Base {
 			let result = await that.login_wechat(data.code);
 			let user = await that.ctx.model.Users.findOne({where:{openid:result.openid},raw:true});
 			if(!user) return that.appJson(that.app.szjcomo.appResult('User not registered',result,false,20001));
-			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user_id.user_id,openid:user.openid}));
+			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user.user_id,openid:user.openid}));
 			return that.appJson(that.app.szjcomo.appResult('login SUCCESS',{token:token,user:user},false));
 		} catch(err) {
 			console.log(err);
