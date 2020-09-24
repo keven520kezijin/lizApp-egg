@@ -73,7 +73,7 @@ module.exports = appInfo => {
 		 * [rundir 正在运行的服务器的目录。您可以在下面找到从app.config转储的“application_config.json”`]
 		 * @type {[type]}
 		 */
-		rundir: path.join(appInfo.root,'runtime', 'run'),
+		rundir: path.join(appInfo.baseDir,'runtime', 'run'),
 		/**
 		 * [siteFile 中间件的选项]
 		 * 您可以使用此选项映射一些文件，当匹配时它将立即响应

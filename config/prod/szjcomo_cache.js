@@ -15,7 +15,7 @@ module.exports = appInfo => {
     	 * [path 缓存目录]
     	 * @type {String}
     	 */
-		path: path.join(appInfo.root, 'runtime', 'cache').replace(/\\/g,'/'),
+		path: path.join(appInfo.baseDir, 'runtime', 'cache').replace(/\\/g,'/'),
 		/**
 		 * [ttl 缓存过期时间]
 		 * @type {Number}
