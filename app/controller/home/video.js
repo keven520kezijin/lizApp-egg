@@ -168,7 +168,7 @@ class Video extends Base {
 			result.user_praise = false;
 		} else {
 			let arr = praise_videos.videos.split(',');
-			if(that.app.szjcomo.inArray(arr,video_id)) {
+			if(that.app.szjcomo.inArray(arr,`${video_id}`)) {
 				result.user_praise = true;
 			} else {
 				result.user_praise = false;
