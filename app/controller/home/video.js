@@ -163,6 +163,17 @@ class Video extends Base {
 			let is_buy = await that.ctx.model.UsersOrder.findOne({where:{video_id:video_id,user_id:user_id,is_pay:1},attributes:['order_id']});
 			result.video_play = is_buy?true:false;
 		}
+		let praise_videos = await that.ctx.model.UsersPraise.findOne({where:{user_id:user_id},attributes:['videos'],raw:true});
+		if(!praise_videos) {
+			result.user_praise = false;
+		} else {
+			let arr = praise_videos.videos.split(',');
+			if(that.app.szjcomo.inArray(arr,video_id)) {
+				result.user_praise = true;
+			} else {
+				result.user_praise = false;
+			}
+		}
 		return that.app.szjcomo.appResult('视频详情查询成功',result,false);
 	}
 	/**
