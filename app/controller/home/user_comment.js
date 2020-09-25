@@ -45,7 +45,8 @@ class UserComment extends Base {
 		return {
 			video_id:that.ctx.rules.name('视频ID').required().number(),
 			page:that.ctx.rules.default(1).number(),
-			limit:that.ctx.rules.default(30).number()
+			limit:that.ctx.rules.default(10).number(),
+			pid:that.ctx.rules.default(0).required().number()
 		};
 	}
 
@@ -99,9 +100,9 @@ class UserComment extends Base {
 			let data = await that.ctx.validate(that.commentValidate,await that.get());
 			let seq = that.ctx.app.Sequelize;
 			let options = {
-				where:{video_id:data.video_id},include:[
+				where:{video_id:data.video_id,pid:data.pid},include:[
 					{model:that.ctx.model.Users,as:'users',attributes:[]}
-				],raw:true,limit:data.limit,offset:(data.page - 1) * data.limit,
+				],raw:true,limit:data.limit,offset:((data.page - 1) * data.limit),
 				attributes:{
 					include:[
 						[seq.col('users.nickname'),'nickname'],
@@ -109,11 +110,11 @@ class UserComment extends Base {
 						[seq.col('users.user_type'),'user_type']
 					],
 					exclude:['video_star']
-				}
+				},order:[['praise_total','desc'],['comment_id','desc']]
 			};
 			let commentBean = new Bean(data,options);
 			let result = await that.ctx.service.base.select(commentBean,that.ctx.model.UsersComment,true,true);
-			//result.rows = that.comment_list_handler(result.rows);
+			if(data.pid == 0) result.rows = await that.comment_list_handler(result.rows);
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
@@ -126,9 +127,38 @@ class UserComment extends Base {
 	 * @param      {[type]}   data [description]
 	 * @return     {[type]}        [description]
 	 */
-	comment_list_handler(data) {
+	async comment_list_handler(data) {
 		let that = this;
-		return that.app.szjcomo.arrayRecursion(data,0,'pid','user_id','children');
+		let result = [];
+		let length = data.length;
+		let seq = that.app.Sequelize;
+		for(let i = 0;i < length;i++) {
+			let item = data[i];
+			let tmpdata = {count:0,rows:[]};
+			let childCount = await that.ctx.model.UsersComment.count({where:{pid:item.comment_id}});
+			if(childCount > 0) {
+				tmpdata.count = childCount;
+				let rows = await that.ctx.model.UsersComment.findOne({
+					where:{pid:item.comment_id},
+					include:[
+						{model:that.ctx.model.Users,as:'users',attributes:[]}
+					],attributes:{
+						include:[
+							[seq.col('users.nickname'),'nickname'],
+							[seq.col('users.avatarurl'),'avatarurl'],
+							[seq.col('users.user_type'),'user_type']
+						],
+						exclude:['video_star']
+					},order:[['praise_total','desc'],['comment_id','desc']]
+				});
+				tmpdata.rows = rows;
+				item.children = tmpdata;
+			} else {
+				item.children = null;
+			}
+			result.push(item);
+		}
+		return result;
 	}
 
 

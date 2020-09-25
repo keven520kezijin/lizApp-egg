@@ -18,7 +18,7 @@ class Wxpay extends Base {
 		return {
 			total_fee:that.ctx.rules.name('打赏金额').required().number().min(10),
 			touser_id:that.ctx.rules.name('作者ID').required().number(),
-			body:that.ctx.rules.default('作品打赏').required().max_length(120).min_length(4),
+			body:that.ctx.rules.default('作品打赏').required().max_length(120).min_length(1),
 			out_trade_no:that.ctx.rules.default(that.app.szjcomo.date('YmdHis') + '' + that.app.szjcomo.mt_rand(100000,999999)).required(),
 		};
 	}
