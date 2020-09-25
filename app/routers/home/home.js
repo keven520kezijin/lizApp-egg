@@ -30,7 +30,8 @@ module.exports = app => {
 	v1Router.get('/user/active',app.middleware.authToken(),appCtr.home.users.active_user);//激活用户访问时间
 	v1Router.get('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach); //获取用户搜索历史记录
 	v1Router.post('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach_video);//用户搜索视频
-
+	v1Router.post('/user/gratuity',app.middleware.authToken(),appCtr.home.users.gratuity_log);  //用户打赏记录
+	v1Router.post('/user/buy_video',app.middleware.authToken(),appCtr.home.users.buy_video_log); //用户购买视频记录
 
 	/*======================视频标签接口=====================*/
 	v1Router.get('/tags',appCtr.home.tags.select);
@@ -52,5 +53,5 @@ module.exports = app => {
 	v1Router.get('/wxpay/gratuity',app.middleware.authToken(),appCtr.home.wxpay.gratuity);   			 //用户打赏操作接口
 	v1Router.get('/wxpay/video',app.middleware.authToken(),appCtr.home.wxpay.order_video);   			 //用户购买视频下单接口
 	v1Router.get('/wxpay/find',app.middleware.authToken(),appCtr.home.wxpay.find_wxpay_result); 		 //查询用户是否真正的支付成功
-	v1Router.post('/wxpay/callback',appCtr.home.wxpay.payCallback); 		 //微信支付回调
+	v1Router.post('/wxpay/callback',appCtr.home.wxpay.payCallback); 		 							 //微信支付回调
 }

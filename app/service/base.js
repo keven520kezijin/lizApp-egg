@@ -213,7 +213,29 @@ class BaseService extends Service {
 		let user = await that.ctx.model.Users.findOne({where:{user_id:user_id},raw:true,attributes:['openid']});
 		return user.openid;
 	}
-
+	/**
+	 * [GratuityCommission 打赏提成比例]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 */
+	async GratuityCommission(money) {
+		let that = this;
+		const commission = 0.1;
+		let result =  (money - money * commission);
+		return result;
+	}
+	/**
+	 * [VideoCommission 视频提成]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   money [description]
+	 */
+	async VideoCommission(money) {
+		let that = this;
+		const commission = 0.1;
+		let result = (money - money * commission);
+		return result;
+	}
 }
 
 

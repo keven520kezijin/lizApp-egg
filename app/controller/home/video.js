@@ -154,28 +154,58 @@ class Video extends Base {
 			},raw:true
 		};
 		let videoBean = new Bean({video_id:video_id},options);
+		videoBean.addCall(that._select_info_after_video_play,'after');
+		videoBean.addCall(that._select_info_after_user_praise,'after');
 		let result = await that.ctx.service.base.select(videoBean,that.ctx.model.Video);
+		return that.app.szjcomo.appResult('视频详情查询成功',result,false);
+	}
+	/**
+	 * [_select_info_after 查询详情后判断用户是否有播放权限]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx    [description]
+	 * @param      {[type]}   result [description]
+	 * @return     {[type]}          [description]
+	 */
+	async _select_info_after_video_play(ctx,result) {
+		let user_id = await ctx.service.base.getUserId();
 		if(result.video_price == 0) {
 			result.video_play = true;
 		} else if(user_id == result.user_id) {
 			result.video_play = true;
 		} else {
-			let is_buy = await that.ctx.model.UsersOrder.findOne({where:{video_id:video_id,user_id:user_id,is_pay:1},attributes:['order_id']});
+			let is_buy = await ctx.model.UsersOrder.findOne({
+				where:{video_id:result.video_id,user_id:user_id,is_pay:1
+			},attributes:['order_id']});
 			result.video_play = is_buy?true:false;
 		}
-		let praise_videos = await that.ctx.model.UsersPraise.findOne({where:{user_id:user_id},attributes:['videos'],raw:true});
+		return result;
+	}
+	/**
+	 * [_select_info_after_user_praise 判断用户是否点赞视频]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx    [description]
+	 * @param      {[type]}   result [description]
+	 * @return     {[type]}          [description]
+	 */
+	async _select_info_after_user_praise(ctx,result) {
+		let user_id = await ctx.service.base.getUserId();
+		let praise_videos = await ctx.model.UsersPraise.findOne({where:{user_id:user_id},attributes:['videos'],raw:true});
 		if(!praise_videos) {
 			result.user_praise = false;
 		} else {
 			let arr = praise_videos.videos.split(',');
-			if(that.app.szjcomo.inArray(arr,`${video_id}`)) {
+			if(ctx.app.szjcomo.inArray(arr,`${result.video_id}`)) {
 				result.user_praise = true;
 			} else {
 				result.user_praise = false;
 			}
 		}
-		return that.app.szjcomo.appResult('视频详情查询成功',result,false);
+		return result;
 	}
+
+
 	/**
 	 * [_select_list 获取视频列表]
 	 * @author 	   szjcomo

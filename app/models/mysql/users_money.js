@@ -7,10 +7,7 @@ module.exports = app => {
             type: DataTypes.INTEGER(10).UNSIGNED,
             primaryKey:true
         },
-        base_money: {
-            type: DataTypes.FLOAT,
-        },
-        other_money: {
+        money: {
             type: DataTypes.FLOAT,
         },
         update_time: {

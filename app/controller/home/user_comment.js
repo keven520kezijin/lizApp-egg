@@ -113,7 +113,7 @@ class UserComment extends Base {
 			};
 			let commentBean = new Bean(data,options);
 			let result = await that.ctx.service.base.select(commentBean,that.ctx.model.UsersComment,true,true);
-			result.rows = that.comment_list_handler(result.rows);
+			//result.rows = that.comment_list_handler(result.rows);
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
@@ -128,7 +128,7 @@ class UserComment extends Base {
 	 */
 	comment_list_handler(data) {
 		let that = this;
-		return that.app.szjcomo.arrayRecursion(data,0,'pid','comment_id','children');
+		return that.app.szjcomo.arrayRecursion(data,0,'pid','user_id','children');
 	}
 
 

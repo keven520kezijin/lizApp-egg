@@ -67,6 +67,36 @@ class Users extends Base {
 		};
 	}
 	/**
+	 * [gratuityLogValidate 记录用户打赏验证器]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @return     {[type]}   [description]
+	 */
+	get gratuityLogValidate() {
+		let that = this;
+		return {
+			wxpay_id:that.ctx.rules.name('支付ID').required().number(),
+			touser_id:that.ctx.rules.name('打赏的用户ID').required().number(),
+			message:that.ctx.rules.default('一点小意思').required().max_length(250).min_length(1)
+		};
+	}
+	/**
+	 * [buyVideoLogValidate 用户购买视频验证器]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @return     {[type]}   [description]
+	 */
+	get buyVideoLogValidate() {
+		let that = this;
+		return {
+			wxpay_id:that.ctx.rules.name('支付ID').required().number(),
+			video_id:that.ctx.rules.name('视频ID').required().number(),
+			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
+		};
+	}
+
+
+	/**
 	 * [login 用户登录]
 	 * @author 	   szjcomo
 	 * @createTime 2020-08-12
@@ -241,7 +271,128 @@ class Users extends Base {
 			await ctx.model.UsersSeach.create({user_id:data.user_id,seach_total:1,tag_name:data.tag_name});
 		}
 	}
-
+	/**
+	 * [gratuity_log 写入用户打赏记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @return     {[type]}   [description]
+	 */
+	async gratuity_log() {
+		let that = this;
+		let transaction;
+		try {
+			let data = await that.ctx.validate(that.gratuityLogValidate,await that.post());
+			transaction = await that.ctx.model.transaction();
+			let gratuityBean = new Bean(data,{transaction:transaction});
+			gratuityBean.addCall(that._gratuity_log_before,'before');
+			gratuityBean.addCall(that._gratuity_log_after_add_user_money,'after');
+			let result = await that.ctx.service.base.create(gratuityBean,that.ctx.model.UsersGratuity,'打赏记录添加失败,请稍候重试');
+			await transaction.commit();
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			if(transaction) await transaction.rollback();
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [_gratuity_log_before 写入打赏记录前完善数据]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx [description]
+	 * @return     {[type]}       [description]
+	 */
+	async _gratuity_log_before(ctx) {
+		let that = this;
+		let user_id = await ctx.service.base.getUserId();
+		let data = that.getData();
+		let wxpayInfo = await ctx.model.Wxpay.findOne({where:{wxpay_id:data.wxpay_id,user_id:user_id},attributes:['total_fee']});
+		if(!wxpayInfo) throw new Error('非法请求参数,wxpay_id错误');
+		let tmpdata = {
+			wxpay_id:data.wxpay_id,
+			message:data.message,
+			touser_id:data.touser_id,
+			gratuity_money:(wxpayInfo.total_fee / 100),
+			user_id:user_id
+		};
+		that.setData(tmpdata);
+	}
+	/**
+	 * [_gratuity_log_after 打赏记录完成后应该给用户增加资金]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx    [description]
+	 * @param      {[type]}   result [description]
+	 * @return     {[type]}          [description]
+	 */
+	async _gratuity_log_after_add_user_money(ctx,result) {
+		let that = this;
+		let touser_id = result.touser_id;
+		let gratuity_money = await ctx.service.base.GratuityCommission(result.gratuity_money);
+		let options = that.getOptions();
+		await ctx.service.home.usersMoney.user_money(gratuity_money,touser_id,options.transaction);
+		await ctx.service.home.usersMoney.user_money_log(gratuity_money,touser_id,'打赏收入',options.transaction);
+	}
+	/**
+	 * [buy_video_log 写入用户购买记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @return     {[type]}   [description]
+	 */
+	async buy_video_log() {
+		let that = this;
+		let transaction;
+		try {
+			let data = await that.ctx.validate(that.buyVideoLogValidate,await that.post());
+			transaction = await that.ctx.model.transaction();
+			let buyVideoBean = new Bean(data,{transaction:transaction});
+			buyVideoBean.addCall(that._buy_video_log_before,'before');
+			buyVideoBean.addCall(that._buy_video_log_after_add_user_money,'after');
+			let result = await that.ctx.service.base.create(buyVideoBean,that.ctx.model.UsersOrder,'作品购买记录添加失败,请稍候重试');
+			await transaction.commit();
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			if(transaction) await transaction.rollback();
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [buy_video_log_before 视频购买记录前置操作 完善订单信息]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx [description]
+	 * @return     {[type]}       [description]
+	 */
+	async _buy_video_log_before(ctx) {
+		let that = this;
+		let user_id = await ctx.service.base.getUserId();
+		let data = that.getData();
+		let wxpayInfo = await ctx.model.Wxpay.findOne({where:{wxpay_id:data.wxpay_id,user_id:user_id},attributes:['total_fee']});
+		if(!wxpayInfo) throw new Error('非法请求参数,wxpay_id错误');
+		let tmpdata = {
+			wxpay_id:data.wxpay_id,video_id:data.video_id,user_id:user_id,is_pay:1,pay_money:(wxpayInfo.total_fee / 100),
+			create_time:data.create_time
+		};
+		that.setData(tmpdata);
+	}
+	/**
+	 * [buy_video_log_after_add_user_money 用户购买记录后需要给另外一个用户增加金额]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   ctx    [description]
+	 * @param      {[type]}   result [description]
+	 * @return     {[type]}          [description]
+	 */
+	async _buy_video_log_after_add_user_money(ctx,result) {
+		let that = this;
+		let user_id = await ctx.service.base.getUserId();
+		let money = await ctx.service.base.VideoCommission(result.pay_money);
+		let videoUser = await ctx.model.Video.findOne({where:{video_id:result.video_id},attributes:['user_id']});
+		let options = that.getOptions();
+		if(videoUser) {
+			await ctx.service.home.usersMoney.user_money(money,videoUser.user_id,options.transaction);
+			await ctx.service.home.usersMoney.user_money_log(money,videoUser.user_id,'作品收入',options.transaction);
+		}
+	}
 }
 
 
