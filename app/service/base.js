@@ -165,9 +165,9 @@ class BaseService extends Service {
 	  			throw err;
 	  		}
 	  		 await sendToWormhole(stream);
-	  		return {save_path:savePath,save_name:filename,file_sha1:that.ctx.app.szjcomo.fileSHA1(target),
+	  		return {save_path:savePath,save_name:filename,file_sha1:that.ctx.app.szjcomo.FileSHA1(target),
 	  			fields:stream.fields,file_size:writeStream.bytesWritten,mime:stream.mime,encoding:stream.encoding,
-	  			origin_name:stream.filename,file_md5:that.ctx.app.szjcomo.fileMD5(target),ext:path.extname(stream.filename)}
+	  			origin_name:stream.filename,file_md5:that.ctx.app.szjcomo.FileMD5(target),ext:path.extname(stream.filename)}
 	}
 	/**
 	 * [getWebAppAccessToken 获取微信小程序access_token]

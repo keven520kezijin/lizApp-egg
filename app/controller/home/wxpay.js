@@ -17,8 +17,9 @@ class Wxpay extends Base {
 		let that = this;
 		return {
 			total_fee:that.ctx.rules.name('打赏金额').required().number().min(10),
+			touser_id:that.ctx.rules.name('作者ID').required().number(),
 			body:that.ctx.rules.default('作品打赏').required().max_length(120).min_length(4),
-			out_trade_no:that.ctx.rules.default(that.app.szjcomo.date('YmdHis') + '' + that.app.szjcomo.mt_rand(100000,999999)).required()
+			out_trade_no:that.ctx.rules.default(that.app.szjcomo.date('YmdHis') + '' + that.app.szjcomo.mt_rand(100000,999999)).required(),
 		};
 	}
 	/**
@@ -41,7 +42,7 @@ class Wxpay extends Base {
 	 * @return     {[type]}   [description]
 	 */
 	get notifyURL() {
-		return 'http://www.liztrip.com/v1/wxpay/callback';
+		return 'http://www.hysdyzx.com/v1/wxpay/callback';
 	}
 	/**
 	 * [findWXpayValidate 查询支付结果]
@@ -97,8 +98,57 @@ class Wxpay extends Base {
 		result.remarks = attach_origin;
 		let insertRes = await that.ctx.model.Wxpay.create(result);
 		if(!insertRes) throw new Error('支付回调写入失败,请重试');
+		if(insertRes.scene == 'video') {
+			that.wxpay_user_video_order(insertRes.wxpay_id,attach.video_id,insertRes.user_id,insertRes.total_fee);
+		}
+		if(insertRes.scene == 'gratuity') {
+			that.wxpay_user_gratuity_log(insertRes.wxpay_id,insertRes.user_id,attach.touser_id,attach.message,insertRes.total_fee);
+		}
 		return true;
 	}
+	/**
+	 * [wxpay_user_video_order 用户购买视频后回调记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   wxpay_id [description]
+	 * @param      {[type]}   video_id [description]
+	 * @param      {[type]}   user_id  [description]
+	 * @return     {[type]}            [description]
+	 */
+	async wxpay_user_video_order(wxpay_id,video_id,user_id,total_fee) {
+		let that = this;
+		let data = {
+			wxpay_id:wxpay_id,
+			video_id:video_id,
+			user_id:user_id,
+			create_time:that.app.szjcomo.date('Y-m-d H:i:s'),
+			total_fee:total_fee
+		};
+		await that.ctx.service.home.usersOrder.buy_video_log(data);
+	}
+	/**
+	 * [wxpay_user_gratuity_log 用户打赏后记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-25
+	 * @param      {[type]}   wxpay_id  [description]
+	 * @param      {[type]}   user_id   [description]
+	 * @param      {[type]}   touser_id [description]
+	 * @param      {[type]}   message   [description]
+	 * @param      {[type]}   total_fee [description]
+	 * @return     {[type]}             [description]
+	 */
+	async wxpay_user_gratuity_log(wxpay_id,user_id,touser_id,message,total_fee) {
+		let that = this;
+		let data = {
+			wxpay_id:wxpay_id,
+			user_id:user_id,
+			touser_id:touser_id,
+			total_fee:total_fee,
+			message:message
+		};
+		await that.ctx.service.home.usersGratuity.gratuity_log(data);
+	}
+
 	/**
 	 * [gratuity 用户打赏下单接口]
 	 * @author 	   szjcomo
@@ -113,8 +163,10 @@ class Wxpay extends Base {
 			let openid  = await that.ctx.service.base.getUserOpenId(user_id);
 			data.notify_url = that.notifyURL;
 			data.trade_type = 'JSAPI';
-			let jsonAttach = that.app.szjcomo.json_encode({user_id:user_id,scene:'gratuity'});
+			let touser_id = data.touser_id;
+			let jsonAttach = that.app.szjcomo.json_encode({user_id:user_id,scene:'gratuity',touser_id:touser_id,message:data.body});
 			data.attach = that.app.szjcomo.base64_encode(jsonAttach);
+			delete data.touser_id;
 			data.openid = openid;
 			let result = await that.app.wxpay.orderCreate(data,that.app.config.wxpay.key);
 			if(result.result_code == 'SUCCESS') {
@@ -145,7 +197,7 @@ class Wxpay extends Base {
 			let wxpayOptions = {
 				body:info.video_name,total_fee:info.video_price * 100,notify_url:that.notifyURL,trade_type:'JSAPI',
 				attach:that.app.szjcomo.base64_encode(jsonAttach),
-				openid:openid,out_trade_no:data.out_trade_no
+				out_trade_no:data.out_trade_no,openid:openid
 			};
 			let result = await that.app.wxpay.orderCreate(wxpayOptions,that.app.config.wxpay.key);
 			if(result.result_code == 'SUCCESS') {
