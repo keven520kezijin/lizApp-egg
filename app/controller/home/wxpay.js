@@ -108,7 +108,7 @@ class Wxpay extends Base {
 	async gratuity() {
 		let that = this;
 		try {
-			let data = await that.ctx.validate(that.gratuityCreateOrderValidate,await that.get());
+			let data = await that.ctx.validate(that.gratuityCreateOrderValidate,await that.post());
 			let user_id = await that.ctx.service.base.getUserId();
 			let openid  = await that.ctx.service.base.getUserOpenId(user_id);
 			data.notify_url = that.notifyURL;

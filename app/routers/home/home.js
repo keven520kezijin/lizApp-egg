@@ -50,7 +50,7 @@ module.exports = app => {
 	v1Router.get('/video/comment/praise',app.middleware.authToken(),appCtr.home.userComment.comment_praise);//用户给评论点赞
 	v1Router.get('/video/comment',appCtr.home.userComment.comment_list); //获取视频评论列表
 	/*=====================支付下单操作接口=====================*/
-	v1Router.get('/wxpay/gratuity',app.middleware.authToken(),appCtr.home.wxpay.gratuity);   			 //用户打赏操作接口
+	v1Router.post('/wxpay/gratuity',app.middleware.authToken(),appCtr.home.wxpay.gratuity);   			 //用户打赏操作接口
 	v1Router.get('/wxpay/video',app.middleware.authToken(),appCtr.home.wxpay.order_video);   			 //用户购买视频下单接口
 	v1Router.get('/wxpay/find',app.middleware.authToken(),appCtr.home.wxpay.find_wxpay_result); 		 //查询用户是否真正的支付成功
 	v1Router.post('/wxpay/callback',appCtr.home.wxpay.payCallback); 		 							 //微信支付回调
