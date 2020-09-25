@@ -134,7 +134,7 @@ class UserComment extends Base {
 		let seq = that.app.Sequelize;
 		for(let i = 0;i < length;i++) {
 			let item = data[i];
-			let tmpdata = {count:0,rows:[]};
+			let tmpdata = {count:0,rows:{}};
 			let childCount = await that.ctx.model.UsersComment.count({where:{pid:item.comment_id}});
 			if(childCount > 0) {
 				tmpdata.count = childCount;
