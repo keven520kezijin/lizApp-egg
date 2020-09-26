@@ -28,7 +28,7 @@ class Video extends Base {
 			video_duration:that.ctx.rules.name('作品时长').required(),
 			video_tags:that.ctx.rules.name('作品分类').required(),
 			video_url:that.ctx.rules.name('作品地址').required(),
-			video_alias:that.ctx.rules.default('').required(),
+			video_alias:that.ctx.rules.default('').required().max_length(251),
 			video_desc:that.ctx.rules.default('').required(),
 			video_price:that.ctx.rules.default(0).required().number(),
 			video_status:that.ctx.rules.default(1).required(),
@@ -157,6 +157,7 @@ class Video extends Base {
 		videoBean.addCall(that._select_info_after_video_play,'after');
 		videoBean.addCall(that._select_info_after_user_praise,'after');
 		let result = await that.ctx.service.base.select(videoBean,that.ctx.model.Video);
+		that.ctx.service.base.update_video_views(video_id);
 		return that.app.szjcomo.appResult('视频详情查询成功',result,false);
 	}
 	/**
@@ -204,7 +205,6 @@ class Video extends Base {
 		}
 		return result;
 	}
-
 
 	/**
 	 * [_select_list 获取视频列表]

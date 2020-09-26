@@ -236,6 +236,21 @@ class BaseService extends Service {
 		let result = (money - money * commission);
 		return result;
 	}
+	/**
+	 * [update_video_views 更新视频的浏览次数]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-26
+	 * @param      {[type]}   video_id [description]
+	 * @return     {[type]}            [description]
+	 */
+	async update_video_views(video_id) {
+		let that = this;
+		let seq = that.ctx.app.Sequelize;
+		await that.ctx.model.Video.update({video_views:seq.literal('video_views+1')},{
+			where:{video_id:video_id}
+		});
+	}
+
 }
 
 
