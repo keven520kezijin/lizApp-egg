@@ -50,6 +50,7 @@ class UsersMoneyService extends BaseService {
 		let result = await that.ctx.model.UsersMoneyLogs.create(tmpdata,options);
 		if(!result) throw new Error('资金记录日志写入失败');
 	}
+
 }
 
 

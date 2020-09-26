@@ -30,6 +30,8 @@ module.exports = app => {
 	v1Router.get('/user/active',app.middleware.authToken(),appCtr.home.users.active_user);//激活用户访问时间
 	v1Router.get('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach); //获取用户搜索历史记录
 	v1Router.post('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach_video);//用户搜索视频
+	v1Router.get('/user/money_log',app.middleware.authToken(),appCtr.home.users.user_money_log_list);//获取用户资金明细
+	v1Router.get('/user/gratuity_log',app.middleware.authToken(),appCtr.home.users.user_gratuity_list); //获取打赏我的记录
 
 	/*======================视频标签接口=====================*/
 	v1Router.get('/tags',appCtr.home.tags.select);

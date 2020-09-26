@@ -45,7 +45,8 @@ module.exports = app => {
         tableName: 'szj_users'
     });
     Model.associate = function() {
-
+        Model.belongsTo(app.model.UsersMoney,{foreignKey:'user_id',targetKey:'user_id',as:'users_money'});
+        Model.belongsTo(app.model.RealName,{foreignKey:'user_id',targetKey:'user_id',as:'real'});
     }
     return Model;
 };

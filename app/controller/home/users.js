@@ -44,8 +44,6 @@ class Users extends Base {
 			tag_name:that.ctx.rules.name('关键字').required()
 		};
 	}
-
-
 	/**
 	 * [registerValidate 注册ID]
 	 * @author 	   szjcomo
@@ -66,6 +64,34 @@ class Users extends Base {
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
 		};
 	}
+	/**
+	 * [moneyLogValidate 获取用户资金明细列表]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-26
+	 * @return     {[type]}   [description]
+	 */
+	get moneyLogValidate() {
+		let that = this;
+		return {
+			limit:that.ctx.rules.default(30).number(),
+			page:that.ctx.rules.default(1).number()
+		};
+	}
+	/**
+	 * [gratuityLogValidate 获取打赏记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-26
+	 * @return     {[type]}   [description]
+	 */
+	get gratuityLogValidate() {
+		let that = this;
+		return {
+			limit:that.ctx.rules.default(10).number(),
+			page:that.ctx.rules.default(1).number(),
+		};
+	}
+
+
 	/**
 	 * [login 用户登录]
 	 * @author 	   szjcomo
@@ -138,9 +164,9 @@ class Users extends Base {
 	async select() {
 		let that = this;
 		try {
-			let user_id = await that.ctx.service.base.getUserId();
-			let bean = new Bean({},{where:{user_id:user_id}});
-			let result = await that.ctx.service.base.select(bean,that.ctx.model.Users);
+			let user_id = await that.get('user_id',0,Number);
+			if(!user_id) user_id = await that.ctx.service.base.getUserId();
+			let result = await that.ctx.service.home.users.userInfo(user_id);
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
@@ -239,6 +265,58 @@ class Users extends Base {
 			await ctx.model.UsersSeach.update({seach_total:(is_find.seach_total + 1)},{where:{seach_id:is_find.seach_id},fields:['seach_total']});
 		} else {
 			await ctx.model.UsersSeach.create({user_id:data.user_id,seach_total:1,tag_name:data.tag_name});
+		}
+	}
+	/**
+	 * [user_money_log_list 获取用户资金明细列表]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-26
+	 * @return     {[type]}   [description]
+	 */
+	async user_money_log_list() {
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.moneyLogValidate,await that.get());
+			let user_id = await that.ctx.service.base.getUserId();
+			let moneyBean = new Bean(data,{
+				where:{user_id:user_id},
+				offset:(data.page - 1) * data.limit,
+				limit:data.limit,order:[['log_id','desc']],attributes:{exclude:['user_id']}
+			});
+			let result = await that.ctx.service.base.select(moneyBean,that.ctx.model.UsersMoneyLogs,true,true);
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [user_gratuity_list 获取用户打赏记录]
+	 * @author 	   szjcomo
+	 * @createTime 2020-09-26
+	 * @return     {[type]}   [description]
+	 */
+	async user_gratuity_list() {
+		let that = this;
+		try {
+			let data 	= await that.ctx.validate(that.gratuityLogValidate,await that.get());
+			let user_id = await that.ctx.service.base.getUserId();
+			let seq = that.app.Sequelize;
+			let gratuityBean = new Bean(data,{
+				where:{touser_id:user_id},include:[
+					{model:that.ctx.model.Users,as:'users',attributes:[]}
+				],order:[['gratuity_id','desc']],
+				attributes:{
+					include:[
+						[seq.col('users.nickname'),'nickname'],
+						[seq.col('users.avatarurl'),'avatarurl'],
+						[seq.col('users.user_type'),'user_type'],
+					],exclude:['touser_id','wxpay_id']
+				},offset:(data.page - 1) * data.limit,limit:data.limit
+			})
+			let result = await that.ctx.service.base.select(gratuityBean,that.ctx.model.UsersGratuity,true,true);
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
 }
