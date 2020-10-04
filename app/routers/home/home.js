@@ -17,7 +17,7 @@ module.exports = app => {
 	app.router.get('/',app.controller.home.home.index);
 	app.router.get('/dywx',app.controller.home.home.dywx_send);
 	app.router.get('/void_list',app.controller.home.home.void_list);
-	app.router.post('/upload_all',app.controller.home.home.uploadAll);
+	app.router.get('/upload_all',app.controller.home.home.upload_all);
 	/**
 	 * [subRouter 命名空间路由]
 	 * @type {[type]}

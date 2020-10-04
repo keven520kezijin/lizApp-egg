@@ -18,7 +18,7 @@
     "egg-szjcomo-dyw": "^1.0.2",
     "egg-szjcomo-excel": "^1.0.4",
     "egg-szjcomo-ffmpeg": "^1.0.1",
-    "egg-szjcomo-utils": "^1.0.0",
+    "egg-szjcomo-utils": "^1.0.1",
     "egg-szjcomo-validate": "^1.0.0",
     "egg-szjcomo-wxpay": "^1.0.0",
     "mysql2": "^2.1.0",

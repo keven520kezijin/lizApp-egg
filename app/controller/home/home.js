@@ -1,5 +1,6 @@
 'use strict';
 const Base 	= require('../base');
+const fs    = require('fs');
 /**
  * 项目首页
  */
@@ -29,6 +30,30 @@ class HomeController extends Base {
 		let that = this;
 		try {
 			let result;
+			// let page = await that.get('id',0,Number);
+			// if(page == 0) throw new Error('id不能为空');
+			// let content = fs.readFileSync('./app/public/video.json');
+			// result = that.app.szjcomo.json_decode(content.toString());
+			// let data = [];
+			// result.forEach((item,index) => {
+			// 	data.push({
+			// 		video_name:`批量添加视频操作-0${(index+1)}`,
+			// 		video_hash:item.file_sha1,
+			// 		video_url:item.file_url,
+			// 		video_tags:'健身教程,书法教程',
+			// 		video_image:item.thumb_image,
+			// 		video_duration:item.video_duration,
+			// 		video_price:that.app.szjcomo.mt_rand(10,99),
+			// 	});
+			// })
+			// let res = await that.ctx.curl('http://192.168.1.165:8105/v1/video',{
+			// 	method:'POST',dataType:'json',timeout:1*60*1000,
+			// 	data:data[page],
+			// 	headers:{
+			// 		'token':'U2FsdGVkX18+AWoWbWEFx/ZjABd/8WUC9zBM+ylwlfHyuWF4VtP9B0Y2GZ45MB1pALRT1xSRxtCNIXCraDHTojhV8YoUuWoQR7l6XK/x09g='
+			// 	}
+			// });
+			// console.log(res.data);
 			// let result = await that.ctx.service.base.getWebAppAccessToken();
 			// console.log(result);
 
@@ -38,11 +63,39 @@ class HomeController extends Base {
 			// result = await that.ctx.app.redis.rpush('my_list',5);
 			
 			// console.log(await that.ctx.app.redis.lpop('my_list'));
-			return that.appJson(that.app.szjcomo.appResult('hi,szjcomo',{},false));
+			return that.appJson(that.app.szjcomo.appResult('hi,szjcomo',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
+
+	/**
+	 * [upload_all 批量上传视频]
+	 * @author 	   szjcomo
+	 * @createTime 2020-10-04
+	 * @return     {[type]}   [description]
+	 */
+	async upload_all() {
+		let that = this;
+		try {
+			let page = await that.get('id',0,Number);
+			if(page == 0) throw new Error('请输入ID');
+			let res = fs.readdirSync('./app/public/video');
+			let result = await that.app.curl('http://127.0.0.1:8105/v1/video/upload',{
+				method:'POST',dataType:'json',files:`./app/public/video/${res[page]}`,
+				timeout:1*60*1000
+			});
+			console.log(result.data);
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result.data,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+
+
+
+
+
 	/**
 	 * [void_list 作废列表]
 	 * @author 	   szjcomo
@@ -155,3 +208,12 @@ class HomeController extends Base {
 }
 
 module.exports = HomeController;
+
+
+/**
+ *
+{
+  message: 'SUCCESS',
+  result: 
+ * 
+ */
