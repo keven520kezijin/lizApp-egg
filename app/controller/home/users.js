@@ -108,7 +108,7 @@ class Users extends Base {
 			let token = that.app.szjcomo.aes_encode(that.app.szjcomo.json_encode({user_id:user.user_id,openid:user.openid}));
 			return that.appJson(that.app.szjcomo.appResult('login SUCCESS',{token:token,user:user},false));
 		} catch(err) {
-			console.log(err);
+			that.ctx.logger.error(err);
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
