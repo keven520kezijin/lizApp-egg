@@ -90,6 +90,21 @@ class Users extends Base {
 			page:that.ctx.rules.default(1).number(),
 		};
 	}
+	/**
+	 * [roleUserValidate 用户完善资料信息]
+	 * @author 	   szjcomo
+	 * @createTime 2020-10-15
+	 * @return     {[type]}   [description]
+	 */
+	get roleUserAddValidate() {
+		let that = this;
+		return {
+			username:that.ctx.rules.name('用户姓名').required().min_length(1).max_length(99),
+			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required(),
+			is_real:that.ctx.rules.default(2).number(),
+			exp_value:that.ctx.rules.default(100).number()
+		};
+	}
 
 
 	/**
@@ -172,6 +187,54 @@ class Users extends Base {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
+	/**
+	 * [update_user 添加实名认证用户信息]
+	 * @author 	   szjcomo
+	 * @createTime 2020-10-15
+	 * @return     {[type]}   [description]
+	 */
+	async create_rela_user() {
+		let that = this;
+		let transaction;
+		try {
+			let data = await that.ctx.validate(that.roleUserAddValidate,await that.post());
+			let user_id = await that.ctx.service.base.getUserId();
+			transaction = await that.ctx.model.transaction();
+			data.user_id = user_id;
+			let userBean = new Bean(data,{transaction:transaction});
+			let result = await that.ctx.service.base.create(userBean,that.ctx.model.RealName,'用户资料完善失败');
+			await transaction.commit();
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			if(transaction) await transaction.rollback();
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [update_rela_user 更新实名认证用户信息]
+	 * @author 	   szjcomo
+	 * @createTime 2020-10-15
+	 * @return     {[type]}   [description]
+	 */
+	async update_rela_user() {
+		let that = this;
+		let transaction;
+		try {
+			let data = await that.post();
+			let user_id = await that.ctx.service.base.getUserId();
+			data.update_time = that.app.szjcomo.date('Y-m-d H:i:s');
+			transaction = await that.ctx.model.transaction();
+			if(Object.keys(data).length == 0) throw new Error('没有要更新资料信息,请检查');
+			let userBean = new Bean(data,{where:{user_id:user_id},transaction:transaction});
+			let result = await that.ctx.service.base.update(userBean,that.ctx.model.RealName,'用户资料更新失败');
+			await transaction.commit();
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			if(transaction) await transaction.rollback();
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+
 	/**
 	 * [active_user 更新用户活跃时间]
 	 * @author 	   szjcomo

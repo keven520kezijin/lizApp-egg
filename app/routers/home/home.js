@@ -26,6 +26,8 @@ module.exports = app => {
 	/*======================用户管理接口=====================*/
 	v1Router.get('/user',appCtr.home.users.select);//用户查询
 	v1Router.post('/user',appCtr.home.users.register);//用户注册
+	v1Router.post('/user/rela',app.middleware.authToken(),appCtr.home.users.create_rela_user);//添加用户实名认证资料
+	v1Router.put('/user/rela',app.middleware.authToken(),appCtr.home.users.update_rela_user);//更新用户实名认证信息
 	v1Router.get('/user/login',appCtr.home.users.login);//用户登录
 	v1Router.get('/user/active',app.middleware.authToken(),appCtr.home.users.active_user);//激活用户访问时间
 	v1Router.get('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach); //获取用户搜索历史记录
