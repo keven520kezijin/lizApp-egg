@@ -34,6 +34,8 @@ module.exports = app => {
 	v1Router.post('/user/search',app.middleware.authToken(),appCtr.home.users.user_seach_video);//用户搜索视频
 	v1Router.get('/user/money_log',app.middleware.authToken(),appCtr.home.users.user_money_log_list);//获取用户资金明细
 	v1Router.get('/user/gratuity_log',app.middleware.authToken(),appCtr.home.users.user_gratuity_list); //获取打赏我的记录
+	v1Router.post('/user/photo',app.middleware.authToken(),appCtr.home.users.add_rela_user_photo);//添加用户的相册资质
+	v1Router.delete('/user/photo',app.middleware.authToken(),appCtr.home.users.delete_rela_user_photo);//删除用户的相册资质
 
 	/*======================视频标签接口=====================*/
 	v1Router.get('/tags',appCtr.home.tags.select);

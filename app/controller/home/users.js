@@ -88,6 +88,7 @@ class Users extends Base {
 		return {
 			limit:that.ctx.rules.default(10).number(),
 			page:that.ctx.rules.default(1).number(),
+			user_id:that.ctx.rules.default(0).number()
 		};
 	}
 	/**
@@ -103,6 +104,19 @@ class Users extends Base {
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required(),
 			is_real:that.ctx.rules.default(2).number(),
 			exp_value:that.ctx.rules.default(100).number()
+		};
+	}
+	/**
+	 * [addUserPhotoValidate 用户添加资质照片]
+	 * @author    szjcomo
+	 * @date   		2020-10-19
+	 * @return {[type]}     [description]
+	 */
+	get addUserPhotoValidate() {
+		let that = this;
+		return {
+			image_url:that.ctx.rules.name('图片地址').required(),
+			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
 		};
 	}
 
@@ -234,6 +248,55 @@ class Users extends Base {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
+	/**
+	 * [add_rela_user_photo 添加用户相册]
+	 * @author    szjcomo
+	 * @date   		2020-10-19
+	 */
+	async add_rela_user_photo() {
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.addUserPhotoValidate,await that.post());
+			data.user_id = await that.ctx.service.base.getUserId();
+			let userPhotoBean = new Bean(data);
+			userPhotoBean.addCall(that.add_rela_user_photo_before);
+			let result = await that.ctx.service.base.create(userPhotoBean,that.ctx.model.UsersPhotos,'资质添加失败,请稍候重试');
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [add_rela_user_photo_before 检查是否有超出数量]
+	 * @author    szjcomo
+	 * @date   		2020-10-19
+	 * @param  {[type]}     ctx [description]
+	 */
+	async add_rela_user_photo_before(ctx) {
+		let that = this;
+		let data = that.getData();
+		let count = await ctx.model.UsersPhotos.count({where:{user_id:data.user_id}});
+		if(count > 11) throw new Error('资质证件超出12张限制,请删除后再重新添加');
+	}
+
+	/**
+	 * [delete_rela_user_photo 用户删除资质图片]
+	 * @author    szjcomo
+	 * @date   		2020-10-19
+	 * @return {[type]}     [description]
+	 */
+	async delete_rela_user_photo() {
+		let that = this;
+		try {
+			let photo_id = await that.get('photo_id',0,Number);
+			if(!photo_id) throw new Error('参数错误,请检查photo_id是否存在');
+			let userPhotoBean = new Bean({},{where:{photo_id:photo_id}});
+			let result = await that.ctx.service.base.delete(userPhotoBean,that.ctx.model.UsersPhotos,'资质证件删除失败,请稍候重试');
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
 
 	/**
 	 * [active_user 更新用户活跃时间]
@@ -362,7 +425,8 @@ class Users extends Base {
 		let that = this;
 		try {
 			let data 	= await that.ctx.validate(that.gratuityLogValidate,await that.get());
-			let user_id = await that.ctx.service.base.getUserId();
+			let user_id = data.user_id;
+			if(!user_id) user_id = await that.ctx.service.base.getUserId();
 			let seq = that.app.Sequelize;
 			let gratuityBean = new Bean(data,{
 				where:{touser_id:user_id},include:[

@@ -48,7 +48,7 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json -t szj_wxpay"
+    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json -t szj_users_photos"
   },
   "ci": {
     "version": "10"

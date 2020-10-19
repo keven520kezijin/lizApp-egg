@@ -47,6 +47,7 @@ module.exports = app => {
     Model.associate = function() {
         Model.belongsTo(app.model.UsersMoney,{foreignKey:'user_id',targetKey:'user_id',as:'users_money'});
         Model.belongsTo(app.model.RealName,{foreignKey:'user_id',targetKey:'user_id',as:'real'});
+        Model.hasMany(app.model.UsersPhotos,{foreignKey:'user_id',targetKey:'user_id',as:'photos'})
     }
     return Model;
 };

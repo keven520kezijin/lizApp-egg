@@ -22,7 +22,8 @@ class UsersService extends BaseService {
 			where:{user_id:user_id},
 			include:[
 				{model:that.ctx.model.UsersMoney,as:'users_money',attributes:[]},
-				{model:that.ctx.model.RealName,as:'real',attributes:[]}
+				{model:that.ctx.model.RealName,as:'real',attributes:[]},
+				{model:that.ctx.model.UsersPhotos,as:'photos',attributes:['image_url','photo_id']}
 			],
 			attributes:{
 				include:[
@@ -31,7 +32,7 @@ class UsersService extends BaseService {
 					[seq.col('real.head_image'),'head_image'],
 					[seq.col('real.company_name'),'company_name'],
 					[seq.col('real.user_desc'),'user_desc'],
-					[seq.col('real.is_real'),'is_real'],
+					[seq.col('real.is_real'),'is_real']
 				],
 				exclude:['openid','active_time']
 			}
