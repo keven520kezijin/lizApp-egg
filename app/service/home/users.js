@@ -31,6 +31,7 @@ class UsersService extends BaseService {
 					[seq.col('real.username'),'username'],
 					[seq.col('real.head_image'),'head_image'],
 					[seq.col('real.company_name'),'company_name'],
+					[seq.col('real.exp_value'),'exp_value'],
 					[seq.col('real.user_desc'),'user_desc'],
 					[seq.col('real.is_real'),'is_real']
 				],
