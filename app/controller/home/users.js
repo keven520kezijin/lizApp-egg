@@ -100,7 +100,7 @@ class Users extends Base {
 	get roleUserAddValidate() {
 		let that = this;
 		return {
-			username:that.ctx.rules.name('用户姓名').required().min_length(1).max_length(99),
+			username:that.ctx.rules.default('').required(),
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required(),
 			is_real:that.ctx.rules.default(2).number(),
 			exp_value:that.ctx.rules.default(100).number()
