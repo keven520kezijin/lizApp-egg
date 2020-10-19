@@ -23,7 +23,7 @@ class UsersService extends BaseService {
 			include:[
 				{model:that.ctx.model.UsersMoney,as:'users_money',attributes:[]},
 				{model:that.ctx.model.RealName,as:'real',attributes:[]},
-				{model:that.ctx.model.UsersPhotos,as:'photos',attributes:['image_url','photo_id']}
+				{model:that.ctx.model.UsersPhotos,as:'photos',attributes:[['image_url','url'],'photo_id']}
 			],
 			attributes:{
 				include:[
