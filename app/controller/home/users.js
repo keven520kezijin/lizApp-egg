@@ -234,7 +234,7 @@ class Users extends Base {
 		let that = this;
 		let transaction;
 		try {
-			let data = await that.post();
+			let data = await that.param();
 			let user_id = await that.ctx.service.base.getUserId();
 			data.update_time = that.app.szjcomo.date('Y-m-d H:i:s');
 			transaction = await that.ctx.model.transaction();
@@ -288,7 +288,7 @@ class Users extends Base {
 	async delete_rela_user_photo() {
 		let that = this;
 		try {
-			let photo_id = await that.get('photo_id',0,Number);
+			let photo_id = await that.param('photo_id',0,Number);
 			if(!photo_id) throw new Error('参数错误,请检查photo_id是否存在');
 			let userPhotoBean = new Bean({},{where:{photo_id:photo_id}});
 			let result = await that.ctx.service.base.delete(userPhotoBean,that.ctx.model.UsersPhotos,'资质证件删除失败,请稍候重试');
