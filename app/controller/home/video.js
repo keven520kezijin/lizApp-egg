@@ -66,6 +66,23 @@ class Video extends Base {
 			video_id:that.ctx.rules.name('作品id').required().number()
 		};
 	}
+	/**
+	 * [updateVideoValidate 更新用户作品信息]
+	 * @author    szjcomo
+	 * @date   		2020-10-21
+	 * @return {[type]}     [description]
+	 */
+	get updateVideoValidate() {
+		let that = this;
+		return {
+			video_id:that.ctx.rules.name('作品ID').required().number(),
+			video_name:that.ctx.rules.default('').required(),
+			video_desc:that.ctx.rules.default('').required(),
+			video_status:that.ctx.rules.default(-1).required(),
+			video_image:that.ctx.rules.default('').required(),
+			update_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
+		};
+	}
 
 
 	/**
@@ -267,7 +284,21 @@ class Video extends Base {
 	 * @return     {[type]}   [description]
 	 */
 	async update() {
-
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.updateVideoValidate,await that.param());
+			let user_id = await that.ctx.service.base.getUserId();
+			let updatedata = {update_time:data.update_time};
+			if(data.video_name.length > 0) updatedata['video_name'] = data.video_name;
+			if(data.video_desc.length > 0) updatedata['video_desc'] = data.video_desc;
+			if(data.video_image.length > 0) updatedata['video_image'] = data.video_image;
+			if(data.video_status > -1) updatedata['video_status'] = data.video_status;
+			let updateBean = new Bean(updatedata,{where:{user_id:user_id,video_id:data.video_id}});
+			let result = await that.ctx.service.base.update(updateBean,that.ctx.model.Video,'作品更新失败');
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
 	}
 	/**
 	 * [delete 删除视频资源]

@@ -48,6 +48,7 @@ module.exports = app => {
 	v1Router.post('/video',app.middleware.authToken(),appCtr.home.video.publish_video);//发布作品
 	v1Router.get('/video',app.middleware.authToken(),appCtr.home.video.select);//查询作品
 	v1Router.delete('/video',app.middleware.authToken(),appCtr.home.video.delete);//删除作品
+	v1Router.put('/video',app.middleware.authToken(),appCtr.home.video.update);//更新作品
 	v1Router.get('/video/praise',app.middleware.authToken(),appCtr.home.videoPraise.user_video_praise);//用户给视频点赞
 	v1Router.get('/video/share',app.middleware.authToken(),appCtr.home.videoShare.user_video_share);//用户分享视频
 	v1Router.post('/video/comment',app.middleware.authToken(),appCtr.home.userComment.create_comment); //用户给视频发表评论
