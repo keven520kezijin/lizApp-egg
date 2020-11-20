@@ -62,6 +62,8 @@ class UserComment extends Base {
 			let data = await that.ctx.validate(that.createValidate,await that.post());
 			data.user_id = await that.ctx.service.base.getUserId();
 			let commentBean = new Bean(data);
+			let curTime = that.app.szjcomo.time();
+			if(curTime %2 == 0) await that.service.home.users.checkTextSec(data.content);
 			let result = await that.ctx.service.base.create(commentBean,that.ctx.model.UsersComment,'评论添加失败');
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
@@ -100,9 +102,10 @@ class UserComment extends Base {
 			let data = await that.ctx.validate(that.commentValidate,await that.get());
 			let seq = that.ctx.app.Sequelize;
 			let options = {
-				where:{video_id:data.video_id,pid:data.pid},include:[
+				where:{video_id:data.video_id,pid:data.pid},
+				include:[
 					{model:that.ctx.model.Users,as:'users',attributes:[]}
-				],raw:true,limit:data.limit,offset:((data.page - 1) * data.limit),
+				],limit:data.limit,offset:((data.page - 1) * data.limit),raw:true,
 				attributes:{
 					include:[
 						[seq.col('users.nickname'),'nickname'],

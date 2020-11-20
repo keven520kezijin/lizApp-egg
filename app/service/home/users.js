@@ -40,6 +40,24 @@ class UsersService extends BaseService {
 		});
 		return result;
 	}
+	/**
+	 * [checkTextSec 检查内容是否安全]
+	 * @author    szjcomo
+	 * @date   		2020-11-20
+	 * @param  {[type]}     str [description]
+	 * @return {[type]}         [description]
+	 */
+	async checkTextSec(str) {
+		let that = this;
+		if(that.app.szjcomo.empty(str)) return false;
+		let access_token = await that.service.base.getWebAppAccessToken();
+		if(!access_token) return false;
+		let url = `https://api.weixin.qq.com/wxa/msg_sec_check?access_token=${access_token}`;
+		let result = await that.app.curl(url,{
+			method:'POST',data:{content:str},dataType:'json',contentType:'json'
+		});
+		return result;
+	}
 }
 
 

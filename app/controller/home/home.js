@@ -30,6 +30,8 @@ class HomeController extends Base {
 		let that = this;
 		try {
 			let result;
+			// result = await that.service.home.users.checkTextSec('特3456书yuuo莞6543李zxcz蒜7782法fgnv级');
+			// console.log(result);
 			// let page = await that.get('id',0,Number);
 			// if(page == 0) throw new Error('id不能为空');
 			// let content = fs.readFileSync('./app/public/video.json');
