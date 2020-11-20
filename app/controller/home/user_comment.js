@@ -62,14 +62,33 @@ class UserComment extends Base {
 			let data = await that.ctx.validate(that.createValidate,await that.post());
 			data.user_id = await that.ctx.service.base.getUserId();
 			let commentBean = new Bean(data);
-			let curTime = that.app.szjcomo.time();
-			if(curTime %2 == 0) await that.service.home.users.checkTextSec(data.content);
+			let curTime = app.szjcomo.time();
+			await app.service.home.users.checkTextSec(data.content);
+			commentBean.addCall(that.createCommentBeanBefore);
 			let result = await that.ctx.service.base.create(commentBean,that.ctx.model.UsersComment,'评论添加失败');
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
+
+	/**
+	 * [createCommentBeanBefore 添加评论前内容检查]
+	 * @author    szjcomo
+	 * @date   		2020-11-20
+	 * @param  {[type]}     app [description]
+	 * @return {[type]}         [description]
+	 */
+	async createCommentBeanBefore(app) {
+		let that = this;
+		let arr = ['全国销量冠军','国家级产品','国家免检','国家领导人','国家级','领袖品牌','世界领先','质量免检','无需国家质量检测','免抽检','国家领导人推荐','国家机关推荐'];
+		let data = that.getData();
+		arr.forEach(item=> {
+			data.content = data.content.replace(item,'*');
+		})
+		that.setData(data);
+	}
+
 	/**
 	 * [comment_praise 评论点赞功能]
 	 * @author 	   szjcomo
@@ -169,3 +188,4 @@ class UserComment extends Base {
 }
 
 module.exports = UserComment;
+
