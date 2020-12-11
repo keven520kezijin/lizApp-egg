@@ -59,4 +59,5 @@ module.exports = app => {
 	v1Router.get('/wxpay/video',app.middleware.authToken(),appCtr.home.wxpay.order_video);   			 //用户购买视频下单接口
 	v1Router.get('/wxpay/find',app.middleware.authToken(),appCtr.home.wxpay.find_wxpay_result); 		 //查询用户是否真正的支付成功
 	v1Router.post('/wxpay/callback',appCtr.home.wxpay.payCallback); 		 							 //微信支付回调
+	v1Router.get('/wxpay/recharge',app.middleware.authToken(),appCtr.home.wxpay.rechargeOrder); 		 //用户充值
 }

@@ -58,6 +58,27 @@ class UsersService extends BaseService {
 		});
 		return result;
 	}
+	/**
+	 * [rechargeOrder 用户充值后回调函数]
+	 * @author    szjcomo
+	 * @date   		2020-12-11
+	 * @param  {[type]}     money   [description]
+	 * @param  {[type]}     user_id [description]
+	 * @return {[type]}             [description]
+	 */
+	async rechargeOrder(money,user_id) {
+		let that = this;
+		let transaction;
+		try {
+			transaction = await app.model.transaction();
+			await that.service.home.usersMoney.user_money(money,user_id,transaction);
+			await that.service.home.usersMoney.user_money_log(money,user_id,'账户充值',transaction);
+			await transaction.commit();
+		} catch(err) {
+			if(transaction) await transaction.rollback();
+			throw err;
+		}
+	}
 }
 
 

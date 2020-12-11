@@ -56,6 +56,19 @@ class Wxpay extends Base {
 			out_trade_no:that.ctx.rules.name('支付订单号').required()
 		};
 	}
+	/**
+	 * [rechargeValidate 用户充值验证器]
+	 * @author    szjcomo
+	 * @date   		2020-12-11
+	 * @return {[type]}     [description]
+	 */
+	get rechargeValidate() {
+		let that = this;
+		return {
+			money:that.ctx.rules.name('充值金额').required().number().min(0.1),
+			out_trade_no:that.ctx.rules.default(that.app.szjcomo.date('YmdHis') + '' + that.app.szjcomo.mt_rand(100000,999999)).required()
+		};
+	}
 
 	/**
 	 * [payCallback 支付回调接口]
@@ -78,6 +91,7 @@ class Wxpay extends Base {
             that.ctx.body = that.app.szjcomo.createXml(replyObj);
             return;
         } catch(err) {
+        	that.app.logger.error(err);
             return that.appJson(that.app.szjcomo.createXml(that.app.szjcomo.appResult(err.message)));
         }
 	}
@@ -99,10 +113,13 @@ class Wxpay extends Base {
 		let insertRes = await that.ctx.model.Wxpay.create(result);
 		if(!insertRes) throw new Error('支付回调写入失败,请重试');
 		if(insertRes.scene == 'video') {
-			that.wxpay_user_video_order(insertRes.wxpay_id,attach.video_id,insertRes.user_id,insertRes.total_fee);
+			await that.wxpay_user_video_order(insertRes.wxpay_id,attach.video_id,insertRes.user_id,insertRes.total_fee);
 		}
 		if(insertRes.scene == 'gratuity') {
-			that.wxpay_user_gratuity_log(insertRes.wxpay_id,insertRes.user_id,attach.touser_id,attach.message,insertRes.total_fee);
+			await that.wxpay_user_gratuity_log(insertRes.wxpay_id,insertRes.user_id,attach.touser_id,attach.message,insertRes.total_fee);
+		}
+		if(insertRes.scene == 'recharge') {
+			await that.service.home.Users.rechargeOrder(insertRes.total_fee/100,attach.user_id);
 		}
 		return true;
 	}
@@ -252,6 +269,29 @@ class Wxpay extends Base {
 			});
 			if(!info) return that.appJson(that.app.szjcomo.appResult('waiting',null,false));
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',info,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [rechargeOrder 充值订单]
+	 * @author    szjcomo
+	 * @date   		2020-12-11
+	 * @return {[type]}     [description]
+	 */
+	async rechargeOrder() {
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.rechargeValidate,await that.get());
+			let user_id = await that.ctx.service.base.getUserId();
+			let jsonAttach = that.app.szjcomo.json_encode({user_id:user_id,scene:'recharge'});
+			let wxpayOptions = {
+				body:'充值订单',total_fee:data.money * 100,notify_url:that.notifyURL,trade_type:'NATIVE',
+				attach:that.app.szjcomo.base64_encode(jsonAttach),
+				out_trade_no:data.out_trade_no
+			};
+			let result = await that.app.wxpay.orderCreate(wxpayOptions,that.app.config.wxpay.key);
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
