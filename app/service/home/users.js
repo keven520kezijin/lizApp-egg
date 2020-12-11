@@ -70,7 +70,7 @@ class UsersService extends BaseService {
 		let that = this;
 		let transaction;
 		try {
-			transaction = await app.model.transaction();
+			transaction = await that.app.model.transaction();
 			await that.service.home.usersMoney.user_money(money,user_id,transaction);
 			await that.service.home.usersMoney.user_money_log(money,user_id,'账户充值',transaction);
 			await transaction.commit();
