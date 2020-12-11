@@ -284,14 +284,19 @@ class Wxpay extends Base {
 		try {
 			let data = await that.ctx.validate(that.rechargeValidate,await that.get());
 			let user_id = await that.ctx.service.base.getUserId();
+			let openid  = await that.ctx.service.base.getUserOpenId(user_id);
 			let jsonAttach = that.app.szjcomo.json_encode({user_id:user_id,scene:'recharge'});
 			let wxpayOptions = {
-				body:'充值订单',total_fee:data.money * 100,notify_url:that.notifyURL,trade_type:'NATIVE',
-				attach:that.app.szjcomo.base64_encode(jsonAttach),
+				body:'充值订单',total_fee:data.money * 100,notify_url:that.notifyURL,trade_type:'JSAPI',
+				attach:that.app.szjcomo.base64_encode(jsonAttach),openid:openid,
 				out_trade_no:data.out_trade_no
 			};
 			let result = await that.app.wxpay.orderCreate(wxpayOptions,that.app.config.wxpay.key);
-			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+			if(result.result_code == 'SUCCESS') {
+				let payOptions = that.createJSWXPAYOptions(result.prepay_id,result.nonce_str);
+				return that.appJson(that.app.szjcomo.appResult('SUCCESS',{pay:payOptions,out_trade_no:data.out_trade_no},false));
+			}
+			return that.appJson(that.app.szjcomo.appResult(result.err_code_des,result));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
