@@ -119,7 +119,7 @@ class Wxpay extends Base {
 			await that.wxpay_user_gratuity_log(insertRes.wxpay_id,insertRes.user_id,attach.touser_id,attach.message,insertRes.total_fee);
 		}
 		if(insertRes.scene == 'recharge') {
-			await that.service.home.Users.rechargeOrder(insertRes.total_fee/100,attach.user_id);
+			await that.ctx.service.home.users.rechargeOrder(insertRes.total_fee/100,attach.user_id);
 		}
 		return true;
 	}
