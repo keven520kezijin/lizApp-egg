@@ -35,7 +35,7 @@ module.exports = appInfo => {
 		 * @param      {...[type]} msg [description]
 		 * @return     {[type]}        [description]
 		 */
-		logging:console.log,
+		logging:false,
 		/**
 		 * [timezone 东八时区]
 		 * @type {String}
