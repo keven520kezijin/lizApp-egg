@@ -31,7 +31,7 @@ class Video extends Base {
 			video_alias:that.ctx.rules.default('').required().max_length(251),
 			video_desc:that.ctx.rules.default('').required(),
 			video_price:that.ctx.rules.default(0).required().number(),
-			video_status:that.ctx.rules.default(1).required(),
+			video_status:that.ctx.rules.default(2).required(),
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
 		};
 	}
@@ -49,7 +49,7 @@ class Video extends Base {
 			tag_name:that.ctx.rules.default('').required(),
 			video_price:that.ctx.rules.default(-1).required().number(),
 			sort:that.ctx.rules.default('video_id').required(),
-			video_status:that.ctx.rules.default(-1).required().number(),
+			video_status:that.ctx.rules.default(1).required().number(),
 			user_id:that.ctx.rules.default(0).required().number(),
 			video_id:that.ctx.rules.default(0).required().number()
 		};

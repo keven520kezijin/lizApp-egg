@@ -94,6 +94,11 @@ module.exports = appInfo => {
 		 */
 		szjcomoCache: require('./szjcomo_cache')(appInfo),
 		/**
+		 * [jwt 密钥]
+		 * @type {Object}
+		 */
+		jwt:{secret: "szjcomo"},
+		/**
 		 * [onerror 出错响应配置]
 		 * @author szjcomo
 		 * @dateTime 2019-12-15

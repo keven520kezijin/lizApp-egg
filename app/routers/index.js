@@ -14,4 +14,8 @@ module.exports = app => {
 	 * 首页控制器
 	 */
 	require(path.join(app.baseDir,'app','routers','home','home.js'))(app);
+	/**
+	 * 后台控制器
+	 */
+	require(path.join(app.baseDir,'app','routers','manager','index.js'))(app);
 }

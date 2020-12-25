@@ -89,5 +89,13 @@ module.exports = {
 	wxpay:{
 		enable: true,
 		package: 'egg-szjcomo-wxpay',
+	},
+	/**
+	 * [jwt 后端jwt]
+	 * @type {Object}
+	 */
+	jwt:{
+	  	enable: true,
+	  	package: "egg-jwt"
 	}
 };
