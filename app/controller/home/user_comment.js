@@ -63,7 +63,7 @@ class UserComment extends Base {
 			data.user_id = await that.ctx.service.base.getUserId();
 			let commentBean = new Bean(data);
 			let curTime = that.app.szjcomo.time();
-			await that.app.service.home.users.checkTextSec(data.content);
+			await that.service.home.users.checkTextSec(data.content);
 			commentBean.addCall(that.createCommentBeanBefore);
 			let result = await that.ctx.service.base.create(commentBean,that.ctx.model.UsersComment,'评论添加失败');
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
