@@ -49,7 +49,7 @@
     "lint": "eslint .",
     "ci": "npm run lint && npm run cov",
     "autod": "autod",
-    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json -t szj_admin_user"
+    "model": "egg-sequelize-auto -o app/models/mysql -c auto_model.json -t szj_follow"
   },
   "ci": {
     "version": "10"

@@ -119,6 +119,32 @@ class Users extends Base {
 			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
 		};
 	}
+	/**
+	 * [followValidate 用户关注作者]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @return {[type]}     [description]
+	 */
+	get followValidate() {
+		let that = this;
+		return {
+			author_id:that.ctx.rules.name('作者ID').required().number(),
+			is_cacel:that.ctx.rules.default(0).required().number(),
+			create_time:that.ctx.rules.default(that.app.szjcomo.date('Y-m-d H:i:s')).required()
+		};
+	}
+	/**
+	 * [fansValidate 获取作者的粉丝数]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @return {[type]}     [description]
+	 */
+	get fansCountValidate() {
+		let that = this;
+		return {
+			author_id:that.ctx.rules.name('作者ID').required().number()
+		};
+	}
 
 
 	/**
@@ -444,6 +470,46 @@ class Users extends Base {
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [user_follow 用户关注功能]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @return {[type]}     [description]
+	 */
+	async user_follow() {
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.followValidate,await that.get());
+			data.user_id = await that.ctx.service.base.getUserId();
+			let result;
+			if(!data.is_cacel) {
+				let createBean = new Bean(data);
+				createBean.addCall(that.userFollowBefore);
+				result = await that.service.base.create(createBean,that.app.model.Follow,'关注记录失败,请稍候重试');				
+			} else {
+				let deleteBean = new Bean(data,{where:{user_id:data.user_id,author_id:data.author_id}});
+				result = await that.service.base.delete(deleteBean,that.app.model.Follow,'取消关注记录失败,请稍候重试');
+			}
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
+	/**
+	 * [userFollowBefore 用户关注检测]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @param  {[type]}     app [description]
+	 * @return {[type]}         [description]
+	 */
+	async userFollowBefore(app) {
+		let that = this;
+		let data = that.getData();
+		if(!data.is_cacel) {
+			let info = await app.model.Follow.findOne({where:{user_id:data.user_id,author_id:data.author_id},attributes:['follow_id']});
+			if(info) throw new Error('您已经关注过作者了,无法重复关注');
 		}
 	}
 }

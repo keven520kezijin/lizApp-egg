@@ -38,8 +38,36 @@ class UsersService extends BaseService {
 				exclude:['openid','active_time']
 			}
 		});
+		result.setDataValue('follow_count',await that.getUserFollowCount(user_id));
+		result.setDataValue('fans_count',await that.getUserFansCount(user_id));
 		return result;
 	}
+	/**
+	 * [getUserFollowCount 获取用户关注的人数]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @param  {[type]}     user_id [description]
+	 * @return {[type]}             [description]
+	 */
+	async getUserFollowCount(user_id) {
+		let that = this;
+		let count = await that.app.model.Follow.count({where:{user_id:user_id}});
+		return count;
+	}
+	/**
+	 * [getUserFansCount 获取用户的粉丝人数]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @param  {[type]}     author_id [description]
+	 * @return {[type]}               [description]
+	 */
+	async getUserFansCount(author_id) {
+		let that = this;
+		let count = await that.app.model.Follow.count({where:{author_id:author_id}});
+		return count;
+	}
+
+
 	/**
 	 * [checkTextSec 检查内容是否安全]
 	 * @author    szjcomo

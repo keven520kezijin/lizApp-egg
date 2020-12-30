@@ -51,7 +51,8 @@ class Video extends Base {
 			sort:that.ctx.rules.default('video_id').required(),
 			video_status:that.ctx.rules.default(1).required().number(),
 			user_id:that.ctx.rules.default(0).required().number(),
-			video_id:that.ctx.rules.default(0).required().number()
+			video_id:that.ctx.rules.default(0).required().number(),
+			find_type:that.ctx.rules.default(0).required().number()
 		};
 	}
 	/**
@@ -249,7 +250,7 @@ class Video extends Base {
 		let that = this;
 		let seq = that.ctx.app.Sequelize;
 		let options = {offset:(data.page - 1) * data.limit,limit:data.limit,
-			where:{},sort:[[data.sort,'desc']],include:[
+			where:{},order:[],include:[
 				{model:that.ctx.model.VideoTag,as:'video_tag',attributes:[]},
 				{model:that.ctx.model.Users,as:'users',attributes:[]}
 			],
