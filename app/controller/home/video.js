@@ -52,7 +52,7 @@ class Video extends Base {
 			video_status:that.ctx.rules.default(1).required().number(),
 			user_id:that.ctx.rules.default(0).required().number(),
 			video_id:that.ctx.rules.default(0).required().number(),
-			find_type:that.ctx.rules.default(0).required().number()
+			find_type:that.ctx.rules.default(1).required().number()
 		};
 	}
 	/**
@@ -233,7 +233,7 @@ class Video extends Base {
 	 */
 	async _select_list(data) {
 		let that = this;
-		let options = that.getListOptions(data);
+		let options = await that.getListOptions(data);
 		let videoBean = new Bean(data,options);
 		let result = await that.ctx.service.base.select(videoBean,that.ctx.model.Video,true,true);
 		return that.app.szjcomo.appResult('作品列表查询成功',result,false);
@@ -246,11 +246,11 @@ class Video extends Base {
 	 * @param      {[type]}   data [description]
 	 * @return     {[type]}        [description]
 	 */
-	getListOptions(data = {}) {
+	async getListOptions(data = {}) {
 		let that = this;
-		let seq = that.ctx.app.Sequelize;
+		let seq = that.app.Sequelize;
 		let options = {offset:(data.page - 1) * data.limit,limit:data.limit,
-			where:{},order:[],include:[
+			where:{},order:[[data.sort,'desc']],include:[
 				{model:that.ctx.model.VideoTag,as:'video_tag',attributes:[]},
 				{model:that.ctx.model.Users,as:'users',attributes:[]}
 			],
@@ -275,7 +275,49 @@ class Video extends Base {
 		}
 		if(data.video_status > -1) options.where.video_status = data.video_status;
 		if(data.user_id > 0) options.where.user_id = data.user_id;
+		if(data.find_type) {
+			let user_id = await that.service.base.getUserId();
+			let users = await that.getAllUsers();
+			let authors = await that.getUserFollowAuthors(user_id);
+			let ordersUsers = Array.from(new Set(authors.concat(users)));
+			options.order = seq.literal('FIELD(Video.user_id,'+ordersUsers.join(',')+')');
+		}
 		return options;
+	}
+	/**
+	 * [getUserFollowAuthors 获取用户关注的作者列表]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @param  {[type]}     user_id [description]
+	 * @return {[type]}             [description]
+	 */
+	async getUserFollowAuthors(user_id) {
+		let that = this;
+		let authors = await that.app.model.Follow.findAll({where:{user_id:user_id},attributes:['author_id'],raw:true});
+		let result = [];
+		authors.forEach(item => {
+			result.push(item.author_id);
+		})
+		return result;
+	}
+
+	/**
+	 * [getAllUsers 获取所有用户]
+	 * @author    szjcomo
+	 * @date   		2020-12-30
+	 * @return {[type]}     [description]
+	 */
+	async getAllUsers() {
+		let that = this;
+		let users = await that.app.model.Users.findAll({
+			attributes:['user_id'],order:[['user_id','desc']],
+			offset:0,limit:500,raw:true
+		});
+		let result = [];
+		users.forEach(item => {
+			result.push(item.user_id);
+		})
+		return result;
 	}
 
 	/**
