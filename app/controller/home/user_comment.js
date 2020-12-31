@@ -68,6 +68,7 @@ class UserComment extends Base {
 			let result = await that.ctx.service.base.create(commentBean,that.ctx.model.UsersComment,'评论添加失败');
 			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
 		} catch(err) {
+			console.log(err);
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
 	}
