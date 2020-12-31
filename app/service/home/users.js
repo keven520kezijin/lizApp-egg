@@ -84,6 +84,7 @@ class UsersService extends BaseService {
 		let result = await that.app.curl(url,{
 			method:'POST',data:{content:str},dataType:'json',contentType:'json'
 		});
+		console.log(result);
 		if(result && result.data.errcode > 0) throw new Error(result.data.errMsg);
 		return result;
 	}
