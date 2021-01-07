@@ -52,7 +52,7 @@ class Video extends Base {
 			video_status:that.ctx.rules.default(1).required().number(),
 			user_id:that.ctx.rules.default(0).required().number(),
 			video_id:that.ctx.rules.default(0).required().number(),
-			find_type:that.ctx.rules.default(1).required().number()
+			find_type:that.ctx.rules.default(0).required().number()
 		};
 	}
 	/**
@@ -277,8 +277,8 @@ class Video extends Base {
 		if(data.user_id > 0) options.where.user_id = data.user_id;
 		if(data.find_type) {
 			let user_id = await that.service.base.getUserId();
-			let users = await that.getAllUsers();
 			let authors = await that.getUserFollowAuthors(user_id);
+			let users = await that.getAllUsers();
 			let ordersUsers = Array.from(new Set(authors.concat(users)));
 			options.order = seq.literal('FIELD(Video.user_id,'+ordersUsers.join(',')+')');
 		}
