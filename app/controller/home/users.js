@@ -536,7 +536,8 @@ class Users extends Base {
 					gratuity_count:userGratu,
 					user_money:userMoney?userMoney.money:0,
 					share_count:share?(share.videos.split(',')).length:0,
-					parise_count:parise?parise.videos.split(',').length:0
+					parise_count:parise?parise.videos.split(',').length:0,
+					views_count:await that.getUserVideoViewCount(data.author_id)
 				};
 				await that.ctx.app.redis.set(`user_count_${data.author_id}`,that.app.szjcomo.json_encode(result),'EX',3*60);				
 			} else {
@@ -546,6 +547,23 @@ class Users extends Base {
 		} catch(err) {
 			return that.appJson(that.app.szjcomo.appResult(err.message));
 		}
+	}
+	/**
+	 * [getUserVideoViewCount 获取用户所有视频ID]
+	 * @author    szjcomo
+	 * @date   		2021-01-16
+	 * @param  {[type]}     user_id [description]
+	 * @return {[type]}             [description]
+	 */
+	async getUserVideoViewCount(user_id) {
+		let that = this;
+		let result = await that.app.model.Video.findAll({where:{user_id:user_id},attributes:['video_views'],raw:true});
+		if(!result || result.length == 0) return 0;
+		let total = 0;
+		result.forEach(item => {
+			total+=item.video_views;
+		})
+		return total;
 	}
 }
 
