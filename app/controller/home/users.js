@@ -512,6 +512,41 @@ class Users extends Base {
 			if(info) throw new Error('您已经关注过作者了,无法重复关注');
 		}
 	}
+	/**
+	 * [userDataCount 用户数据统计]
+	 * @author    szjcomo
+	 * @date   		2021-01-16
+	 * @return {[type]}     [description]
+	 */
+	async userDataCount() {
+		let that = this;
+		try {
+			let data = await that.ctx.validate(that.fansCountValidate,await that.get());
+			let parise = await that.app.model.UsersPraise.findOne({where:{user_id:data.author_id},attributes:['videos']});
+			let share = await that.app.model.UsersShare.findOne({where:{user_id:data.author_id},attributes:['videos']});
+			let userMoney = await that.app.model.UsersMoney.findOne({where:{user_id:data.author_id},attributes:['money']});
+			let userGratu = await that.app.model.UsersGratuity.count({where:{user_id:data.author_id}});
+			let userFllow = await that.app.model.Follow.count({where:{user_id:data.author_id}});
+			let userOrder = await that.app.model.UsersOrder.count({where:{user_id:data.author_id}});
+			let result = await that.ctx.app.redis.get(`user_count_${data.author_id}`);
+			if(!result) {
+				result = {
+					order_count:userOrder,
+					follow_count:userFllow,
+					gratuity_count:userGratu,
+					user_money:userMoney?userMoney.money:0,
+					share_count:share?(share.videos.split(',')).length:0,
+					parise_count:parise?parise.videos.split(',').length:0
+				};
+				await that.ctx.app.redis.set(`user_count_${data.author_id}`,that.app.szjcomo.json_encode(result),'EX',3*60);				
+			} else {
+				result = that.app.szjcomo.json_decode(result);
+			}
+			return that.appJson(that.app.szjcomo.appResult('SUCCESS',result,false));
+		} catch(err) {
+			return that.appJson(that.app.szjcomo.appResult(err.message));
+		}
+	}
 }
 
 

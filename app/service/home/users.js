@@ -33,7 +33,14 @@ class UsersService extends BaseService {
 					[seq.col('real.company_name'),'company_name'],
 					[seq.col('real.exp_value'),'exp_value'],
 					[seq.col('real.user_desc'),'user_desc'],
-					[seq.col('real.is_real'),'is_real']
+					[seq.col('real.is_real'),'is_real'],
+					[seq.col('real.user_position'),'user_position'],
+					[seq.col('real.user_phone'),'user_phone'],
+					[seq.col('real.user_tel'),'user_tel'],
+					[seq.col('real.user_fax'),'user_fax'],
+					[seq.col('real.user_email'),'user_email'],
+					[seq.col('real.user_web'),'user_web'],
+					[seq.col('real.user_address'),'user_address'],
 				],
 				exclude:['openid','active_time']
 			}

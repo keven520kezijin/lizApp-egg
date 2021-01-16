@@ -37,6 +37,7 @@ module.exports = app => {
 	v1Router.post('/user/photo',app.middleware.authToken(),appCtr.home.users.add_rela_user_photo);//添加用户的相册资质
 	v1Router.delete('/user/photo',app.middleware.authToken(),appCtr.home.users.delete_rela_user_photo);//删除用户的相册资质
 	v1Router.get('/user/follow',app.middleware.authToken(),appCtr.home.users.user_follow);//关注用户
+	v1Router.get('/user/count',appCtr.home.users.userDataCount);
 
 	/*======================视频标签接口=====================*/
 	v1Router.get('/tags',appCtr.home.tags.select);

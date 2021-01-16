@@ -33,7 +33,28 @@ module.exports = app => {
         },
         create_time: {
             type: DataTypes.DATE,
-        }
+        },
+        user_position:{
+            type:DataTypes.STRING(50),
+        },
+        user_phone:{
+            type:DataTypes.STRING(50),
+        },
+        user_tel:{
+            type:DataTypes.STRING(50),
+        },
+        user_fax:{
+            type:DataTypes.STRING(50),
+        },
+        user_email:{
+            type:DataTypes.STRING(50),
+        },
+        user_web:{
+            type:DataTypes.STRING(50),
+        },
+        user_address:{
+            type:DataTypes.STRING(50),
+        },
     }, {
         tableName: 'szj_real_name'
     });
