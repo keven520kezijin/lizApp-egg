@@ -55,6 +55,15 @@ module.exports = app => {
         user_address:{
             type:DataTypes.STRING(50),
         },
+        user_postcode:{
+            type:DataTypes.STRING(50),
+        },
+        user_product:{
+            type:DataTypes.STRING(50),
+        },
+        user_other:{
+            type:DataTypes.STRING(50),
+        },
     }, {
         tableName: 'szj_real_name'
     });

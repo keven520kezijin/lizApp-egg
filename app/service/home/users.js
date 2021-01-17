@@ -41,6 +41,9 @@ class UsersService extends BaseService {
 					[seq.col('real.user_email'),'user_email'],
 					[seq.col('real.user_web'),'user_web'],
 					[seq.col('real.user_address'),'user_address'],
+					[seq.col('real.user_postcode'),'user_postcode'],
+					[seq.col('real.user_product'),'user_product'],
+					[seq.col('real.user_other'),'user_other'],
 				],
 				exclude:['openid','active_time']
 			}
