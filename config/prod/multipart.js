@@ -58,7 +58,7 @@ module.exports = {
      * [whitelist 白名单的ext文件名，默认为'null`]
      * @type {[type]}
      */
-    whitelist: ['.png','.jpeg','.jpg','.bmp','.mp4','.mp3','.wmv'],
+    whitelist: ['.png','.jpeg','.jpg','.bmp','.mp4','.mp3','.wmv','.gif'],
     /**
      * [tmpdir 临时文件的目录。只在“文件”模式下工作]
      * @type {[type]}

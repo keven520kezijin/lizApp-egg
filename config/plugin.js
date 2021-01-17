@@ -47,7 +47,7 @@ module.exports = {
 	 * @type {Object}
 	 */
 	szjcomoDyw:{
-		enable: true,
+		enable: false,
 		package: 'egg-szjcomo-dyw',
 	},
 	/**

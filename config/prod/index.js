@@ -120,27 +120,6 @@ module.exports = appInfo => {
 		        ctx.status = 200;
 		        ctx.body = JSON.stringify(ctx.app.szjcomo.appResult('服务器内部出错,请联系管理员'));
 		    }
-		},
-		/**
-		 * [szjcomoDyw 短信网]
-		 * @type {Object}
-		 */
-		szjcomoDyw:{
-			/**
-			 * [accesskey 短信网密钥]
-			 * @type {String}
-			 */
-			accesskey:'dxwSZJ0762',
-			/**
-			 * [secret 短信网密钥]
-			 * @type {String}
-			 */
-			secret:'2551C8A538A00FA1A1F1A6D42BCB',
-			/**
-			 * [sign 签名]
-			 * @type {String}
-			 */
-			sign:'【东源卫生职业技术学校】'
-		},
+		}
 	};
 }
